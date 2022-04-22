@@ -1,11 +1,20 @@
-package GunGame;
+package GunGame.Map;
 
-import GunGame.Math.Int2D;
-import GunGame.Math.Double2D;
+import GunGame.Drawable;
+import GunGame.Rectangle;
+import GunGame.Gl;
+import GunGame.Actor.Actor
+import GunGame.Actor.Enemy
+import GunGame.Actor.Player
+import GunGame.Item.Item
+import GunGame.Items.ItemPickup
+import GunGame.Extension.Int2D;
+import GunGame.Extension.Double2D;
 import javafx.scene.canvas.GraphicsContext;
 import java.io.FileInputStream;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import kotlin.concurrent.thread
 
 enum class Direction(val value:Int){
     left(0),
@@ -62,9 +71,13 @@ open class Room(index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawable(r
     var background:Image;
     val index = index;
 
+    var isKnown = false;
     var colliders = mutableListOf<Rectangle>();
     var doors = mutableListOf<Door>();
     var enemies = mutableListOf<Actor>();
+    var cleared = false;
+    open val minimapColor = Color.color(0.6, 0.6, 0.6, 0.7);
+    open val minimapColorCurrent = Color.color(0.8, 0.8, 0.8, 0.7);
 
     constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y),null,Direction.left);
 
@@ -88,112 +101,86 @@ open class Room(index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawable(r
                 neighbors[direction.ordinal] = room;
                 room.neighbors[Direction.flip(direction).ordinal] = this;
             }
-            
-            //create colliders and doors
-            if(neighbors[d] == null){
-                var pos = Double2D();
-                var s = Double2D();
-                when(d){
-                    0 -> {
-                        s.y = roomSize.y;
-                        s.x = Door.doorSize.x;
-                    }
-                    1 -> {
-                        pos.x = roomSize.x-Door.doorSize.x;
-                        s.y = roomSize.y;
-                        s.x = Door.doorSize.x;
-                    }
-                    2 -> {
-                        s.y = Door.doorSize.y;
-                        s.x = roomSize.x;
-                    }
-                    3 -> {
-                        pos.y = roomSize.y-Door.doorSize.y;
-                        s.y = Door.doorSize.y;
-                        s.x = roomSize.x;
-                    }
+
+            val pos = Double2D();
+            val doorPos = Double2D();
+            val s = Double2D();
+            when(d){
+                0 -> {
+                    s.y = roomSize.y;
+                    s.x = Door.doorSize.x;
+                    doorPos.y = roomSize.y/2-Door.doorSize.y/2;
                 }
-                var r = Rectangle(this, position+pos, s);
-                r.static = true;
-                colliders.add(r);
+                1 -> {
+                    pos.x = roomSize.x-Door.doorSize.x;
+                    s.y = roomSize.y;
+                    s.x = Door.doorSize.x;
+                    doorPos.y = roomSize.y/2-Door.doorSize.y/2;
+                    doorPos.x = roomSize.x-Door.doorSize.x;
+                }
+                2 -> {
+                    s.y = Door.doorSize.y;
+                    s.x = roomSize.x;
+                    doorPos.x = roomSize.x/2-Door.doorSize.x/2;
+                }
+                3 -> {
+                    pos.y = roomSize.y-Door.doorSize.y;
+                    s.y = Door.doorSize.y;
+                    s.x = roomSize.x;
+                    doorPos.y = roomSize.y-Door.doorSize.y;
+                    doorPos.x = roomSize.x/2-Door.doorSize.x/2;
+                }
             }
-            else{
-                var pos = Double2D();
-                var s = Double2D();
-                var w1 = Double2D();
-                var w2 = Double2D();
-                when(d){
-                    0 -> {
-                        s.y = roomSize.y/2-Door.doorSize.y/2;
-                        s.x = Door.doorSize.x;
-                        pos.y = s.y;
-                        pos.x = 0.0;
-                        w2.y = s.y+Door.doorSize.y;
-                    }
-                    1 -> {
-                        s.y = roomSize.y/2-Door.doorSize.y/2;
-                        s.x = Door.doorSize.x;
-                        pos.y = s.y;
-                        pos.x = roomSize.x-Door.doorSize.x;
-                        w1.x = pos.x;
-                        w2.x = w1.x;
-                        w2.y = s.y+Door.doorSize.y;
-                    }
-                    2 -> {
-                        s.y = Door.doorSize.y;
-                        s.x = roomSize.x/2-Door.doorSize.x/2;
-                        pos.y = 0.0;
-                        pos.x = s.x;
-                        w2.x = s.x+Door.doorSize.x;
-                    }
-                    3 -> {
-                        s.y = Door.doorSize.y;
-                        s.x = roomSize.x/2-Door.doorSize.x/2;
-                        pos.y = roomSize.y-Door.doorSize.y;
-                        pos.x = s.x;
-                        w1.y = pos.y;
-                        w2.y = w1.y;
-                        w2.x = s.x+Door.doorSize.x;
-                    }
-                }
-                doors.add(Door(this, neighbors[d]!!, position+pos, Direction.values()[d]));
-                var r = Rectangle(this, position+w1, s);
-                r.static = true;
-                colliders.add(r);
-                r = Rectangle(this, position+w2, s);
-                r.static = true;
-                colliders.add(r);
+            val r = Rectangle(this, position+pos, s);
+            r.static = true;
+            r.rigid = true;
+            r.onLayer = 0b1000;
+            r.useLayer = 0b0000;
+            colliders.add(r);
+            //create colliders and doors
+            if(neighbors[d] != null){
+                doors.add(Door(this, neighbors[d]!!, position+doorPos, Direction.values()[d]));
             }
         }
         PrepareRoom(floor);
     }
 
     open protected fun PrepareRoom(floor:Floor){
-        for(i in 0..Gl.randomInt(0, floor.level)){
-            val x = Gl.randomDouble(position.x+Door.doorSize.x,position.x+size.x-Door.doorSize.x);
-            val y = Gl.randomDouble(position.y+Door.doorSize.y,position.y+size.y-Door.doorSize.y);
-            enemies.add(Enemy(this,Double2D(x,y)));
-        }
+        enemies.addAll(Enemy.getEnemies(floor.level, this));
     }
 
     override fun Update(elapsed_ms:Long){
         if(enemies.size <= 0){
+            if(!cleared)Cleared();
             for(d in doors){
-                d.open();
+                if(!d.isOpen)
+                    d.open();
             }
         }
     }
 
     override fun Draw(gc:GraphicsContext){
-        var pos = getDrawPosition(position);
+        val pos = getDrawPosition(position);
         gc.drawImage(background, pos.x.toDouble(), pos.y.toDouble(), size.x.toDouble(), size.y.toDouble());
 
+    }
+
+    open fun Cleared(){
+        cleared = true;
     }
 
     fun focusRoom(){
         Drawable.CenterCamera(center);
         Gl.minimap?.SetCurrentTile(index);
-        SetActive(true);
+        for(n in neighbors){
+            if (n != null) {
+                n.isKnown = true
+            };
+        }
+        thread {
+            Thread.sleep(500);
+            SetActive(true);
+        }
     }
 
     fun SetActive(b:Boolean){
@@ -217,37 +204,63 @@ open class Room(index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawable(r
         }
     }
 
+    override fun Dispose() {
+        for(c in colliders)c.Dispose();
+        for(d in doors)d.Dispose();
+        for(e in enemies)e.Dispose();
+        super.Dispose();
+    }
     
 }
 
 class StartRoom(index:Int,v:Int2D) : Room(index,v) {
     init{
-        Player(this,center);
-        focusRoom();
+        if(Player.player != null) {
+            Player.player!!.position = center;
+            Player.player!!.currentRoom = this;
+        }
+        else Player(this,center);
+        isKnown = true;
     }
     constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y));
 
     override protected fun PrepareRoom(floor:Floor){
+        focusRoom();
     }
 }
 
 
-class BossRoom(index:Int,v:Int2D) : Room(index,v) {
+class EndRoom(index:Int,v:Int2D) : Room(index,v) {
+    override val minimapColor = Color.color(0.6, 0.1, 0.1, 0.7);
+    override val minimapColorCurrent = Color.color(0.8, 0.2, 0.2, 0.7);
+
     constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y));
 
-    override protected fun PrepareRoom(floor:Floor){
+    val trapDoor = TrapDoor(this);
+
+    override fun Update(elapsed_ms: Long) {
+        if(enemies.size <= 0){
+            if(!cleared)Cleared();
+            for(d in doors){
+                if(!d.isOpen)d.open();
+            }
+        }
+    }
+
+    override fun Cleared() {
+        ItemPickup(center+Double2D(-16.0,64.0),Item.getRandomItem());
+        trapDoor.open();
+        super.Cleared();
     }
 }
 
 
 class ItemRoom(index:Int,v:Int2D) : Room(index,v) {
     constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y));
-    //val item:Item;
-
-    init{
-        //generate item
-    }
+    override val minimapColor = Color.color(0.6, 0.6, 0.1, 0.7);
+    override val minimapColorCurrent = Color.color(0.8, 0.8, 0.2, 0.7);
 
     override protected fun PrepareRoom(floor:Floor){
+        ItemPickup(center,Item.getRandomItem());
     }
 }

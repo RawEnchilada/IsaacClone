@@ -1,33 +1,55 @@
-package GunGame;
+package GunGame.Map;
 
-import GunGame.Math.Double2D;
-import javafx.scene.canvas.GraphicsContext;
-import java.io.FileInputStream;
-import javafx.scene.image.Image;
+import GunGame.Drawable;
+import GunGame.Rectangle;
+import GunGame.Collider;
+import GunGame.Actor.Player
+import GunGame.Extension.Double2D
+import javafx.scene.SnapshotParameters
+import javafx.scene.canvas.GraphicsContext
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.paint.Color
+import java.io.FileInputStream
+
 
 class Door(parent:Room,target:Room,pos:Double2D,direction:Direction) : Drawable(pos,doorSize,parent.zIndex+1){
     companion object{
-        private val doorUp = Image(FileInputStream("src/main/resources/doorup.png"));
-        private val doorDown = Image(FileInputStream("src/main/resources/doordown.png"));
-        private val doorRight = Image(FileInputStream("src/main/resources/doorright.png"));
-        private val doorLeft = Image(FileInputStream("src/main/resources/doorleft.png"));
-        val doorSize = Double2D(doorUp.width*2,doorUp.height*2);
+        private val doorOpen = Image(FileInputStream("src/main/resources/door.png"));
+        private val doorClosed = Image(FileInputStream("src/main/resources/doorClosed.png"));
+        val doorSize = Double2D(doorOpen.width*2,doorOpen.height*2);
+        private val params = SnapshotParameters();
+
+        init{
+            params.fill = Color.TRANSPARENT;
+        }
     }
 
-    var sprite:Image;
+    var sprite:Image = doorOpen;
+    var openview:ImageView;
+    var closedview: ImageView;
     var target = target;
     var collider:Rectangle;
     var isOpen = true;
+    var rotation = 0.0;
 
     init{
         when(direction){
-            Direction.left -> sprite = doorLeft;
-            Direction.right -> sprite = doorRight;
-            Direction.up -> sprite = doorUp;
-            Direction.down -> sprite = doorDown;
+            Direction.left -> rotation = -90.0;
+            Direction.right -> rotation = 90.0;
+            Direction.up -> rotation = 0.0;
+            Direction.down -> rotation = 180.0;
         }
+        openview = ImageView(doorOpen);
+        openview.rotate = rotation;
+        closedview = ImageView(doorClosed);
+        closedview.rotate = rotation;
+        sprite = openview.snapshot(params,null);
+
         collider = Rectangle(this, pos-Double2D(8.0,8.0), Double2D(doorSize.x+16.0,doorSize.y+16.0));
         collider.rigid = false;
+        collider.onLayer = 0b0001;
+        collider.useLayer = 0b0100;
         collider.static = true;
         collider.onEnter = fun(other:Collider){
             if(isOpen && other.parent is Player){
@@ -40,13 +62,15 @@ class Door(parent:Room,target:Room,pos:Double2D,direction:Direction) : Drawable(
 
     override fun Draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(sprite, pos.x.toDouble(), pos.y.toDouble(), size.x.toDouble(), size.y.toDouble());
+        gc.drawImage(sprite, pos.x, pos.y, size.x, size.y);
     }
 
     fun open(){
+        sprite = openview.snapshot(params,null);
         isOpen = true;
     }
     fun close(){
+        sprite = closedview.snapshot(params,null);
         isOpen = false;
     }
 }

@@ -4,7 +4,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton
-import GunGame.Math.Double2D;
+import GunGame.Extension.Double2D;
 
 object InputListener{
     private var keys = mutableSetOf<KeyCode>();
@@ -20,7 +20,7 @@ object InputListener{
             keys.remove(key.code);
         }
         fun MouseMoved(key:MouseEvent){
-            mousePosition = Double2D(key.sceneX,key.screenY);
+            mousePosition = Double2D(key.sceneX,key.screenY-128.0);
         }
         fun MousePressed(key:MouseEvent){
             mouseButtons.add(key.button);

@@ -1,11 +1,9 @@
 package GunGame.UI;
 
-import GunGame.Drawable;
+import GunGame.Actor.Player
 import GunGame.Gl;
-import GunGame.Math.Int2D;
-import GunGame.Math.Double2D;
-import GunGame.Room;
-import GunGame.Player;
+import GunGame.Extension.Double2D;
+import GunGame.Map.Room;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -19,9 +17,12 @@ class Minimap(floor:MutableList<Room>,pos:Double2D = Gl.wSize*0.05,size:Double2D
     var maximized = false;
     var viewPosition = Double2D();
     var currentTile:Double2D;
+    val floor:MutableList<Room>;
 
     init{
+        if(Gl.minimap != null)Gl.minimap!!.Dispose();
         Gl.minimap = this;
+        this.floor = floor;
         tiles = Array(floor.size){Double2D()};
         for(i in 0 until floor.size){
             tiles[i] = (tileSize*floor[i].gridPosition)+margin;
@@ -46,16 +47,16 @@ class Minimap(floor:MutableList<Room>,pos:Double2D = Gl.wSize*0.05,size:Double2D
         else{
             gc.fill = Color.color(0.2, 0.2, 0.2, 0.7);
             gc.fillRoundRect(position.x, position.y, size.x, size.y, 5.0, 5.0);
-            gc.fill = Color.color(0.6, 0.6, 0.6, 0.7);
-            for(t in tiles){
-                val pos = position+t-viewPosition;
-                if(currentTile == t){
-                    gc.fill = Color.color(0.8, 0.8, 0.8, 0.7);
+            for(t in 0 until tiles.size){
+                if(!floor[t].isKnown)continue;
+                val pos = position+tiles[t]-viewPosition;
+                gc.fill = floor[t].minimapColor;
+                if(currentTile == tiles[t]){
+                    gc.fill = floor[t].minimapColorCurrent;
                     gc.fillRoundRect(pos.x, pos.y, tileSize.x, tileSize.y, 5.0, 5.0);
-                    gc.fill = Color.color(0.6, 0.6, 0.6, 0.7);
                 }
                 //is in bounds at least partially
-                else if(t.x+tileSize.x > viewPosition.x && t.x < viewPosition.x+size.x && t.y+tileSize.y > viewPosition.y && t.y < viewPosition.y+size.y){
+                else if(tiles[t].x+tileSize.x > viewPosition.x && tiles[t].x < viewPosition.x+size.x && tiles[t].y+tileSize.y > viewPosition.y && tiles[t].y < viewPosition.y+size.y){
                     gc.fillRoundRect(pos.x,
                                     pos.y,
                                     tileSize.x,

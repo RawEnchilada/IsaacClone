@@ -1,6 +1,6 @@
 package GunGame;
 
-import GunGame.Math.Double2D;
+import GunGame.Extension.Double2D;
 import GunGame.Extension.clamp;
 import GunGame.Extension.closestPointOnLineSegment;
 import javafx.scene.canvas.GraphicsContext
@@ -9,10 +9,12 @@ import javafx.scene.canvas.GraphicsContext
 abstract class Collider(parent:Component,pos:Double2D){
     companion object{
         var colliders = mutableListOf<Collider>();
+        private var disposing = mutableListOf<Collider>();
 
         fun Collide(){
             for(i in colliders.size-1 downTo 0){
                 for(n in i-1 downTo 0){
+                    if(!colliders[i].matchingLayer(colliders[n]))continue;
                     if(!colliders[i].active || !colliders[n].active)continue;
                     val colliding = colliders[i].isColliding(colliders[n]);
                     if(colliders[i].isIntersecting(colliders[n].closestPointTo(colliders[i]))){
@@ -42,11 +44,18 @@ abstract class Collider(parent:Component,pos:Double2D){
                 }
             }
         }
+
+        fun Dispose(){
+            colliders.removeAll(disposing);
+            disposing.clear();
+        }
     }
 
     var parent = parent;
     var position = pos;
     var rigid = true;
+    var onLayer = 0b0000;
+    var useLayer = 0b0000;
     var static = false;
     var active = true;
 
@@ -59,7 +68,7 @@ abstract class Collider(parent:Component,pos:Double2D){
         colliders.add(this);
     }
     fun Dispose(){
-        colliders.remove(this);
+        disposing.add(this);
     }
 
     var onEnter: (other:Collider) -> Unit={};
@@ -74,6 +83,9 @@ abstract class Collider(parent:Component,pos:Double2D){
     abstract fun DrawOutline(gc:GraphicsContext);
     private fun isColliding(other:Collider):Boolean{
         return collisions.contains(other) || other.collisions.contains(this);
+    }
+    private fun matchingLayer(other:Collider):Boolean{
+        return ((onLayer and other.useLayer) + (useLayer and other.onLayer)) > 0;
     }
     fun moveBack(other:Collider){
         if(!static){

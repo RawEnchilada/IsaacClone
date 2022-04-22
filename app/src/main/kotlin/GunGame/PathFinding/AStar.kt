@@ -1,6 +1,6 @@
 package GunGame.PathFinding;
 
-import GunGame.Math.Int2D;
+import GunGame.Extension.Int2D;
 
 class AStar public constructor(weights: Array<Array<Double>>) {
 

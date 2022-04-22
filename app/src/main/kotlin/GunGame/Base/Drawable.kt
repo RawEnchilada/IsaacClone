@@ -1,27 +1,38 @@
 package GunGame;
 
-import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import GunGame.Math.Int2D;
-import GunGame.Math.Double2D;
+import GunGame.Extension.Int2D;
+import GunGame.Extension.Double2D;
 
 abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
     
     companion object {
         var drawables = mutableListOf<Drawable>();
-
+        private var disposing = mutableListOf<Drawable>();
         
-        fun DrawAll(gc:GraphicsContext){
+        fun DrawAll(gc:GraphicsContext,elapsed_ms:Long){
+            gc.clearRect(0.0,0.0,Gl.wSize.x,Gl.wSize.y);
             for(d in drawables){
                 d.Draw(gc);
             }    
-            if(Gl.DEBUG){
-                gc.stroke = Color.RED;
-                for(c in Collider.colliders){                    
+            if(Gl.show_colliders){
+                for(c in Collider.colliders){
+                    if(c.active)gc.stroke = Color.GREEN;
+                    else gc.stroke = Color.RED;
                     c.DrawOutline(gc);
                 }
-            }        
+            }
+            if(Gl.show_fps){
+                gc.fill = Color.WHITE;
+                gc.fillText("${1000 / elapsed_ms} fps", 10.0, 10.0);
+            }
+        }
+
+
+        fun Dispose(){
+            drawables.removeAll(disposing);
+            disposing.clear();
         }
 
         var cameraPosition = Double2D();
@@ -60,7 +71,7 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
     constructor(pos:Double2D,size:Int2D,zindex:Int):this(pos,size.toDouble2D(),zindex);
 
     override fun Dispose(){
-        drawables.remove(this);  
+        disposing.add(this);
         super.Dispose();      
     }
     

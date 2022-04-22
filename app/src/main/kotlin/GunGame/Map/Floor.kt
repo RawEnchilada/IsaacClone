@@ -1,11 +1,12 @@
-package GunGame;
+package GunGame.Map;
 
-import GunGame.Math.Int2D;
+import GunGame.Extension.Int2D;
 import GunGame.PathFinding.AStar;
+import GunGame.Gl;
 
 
 class Floor(var level: Int){
-    var levelSize:Int = level*2+4;
+    var levelSize:Int = 5+level;
 
     var rooms:MutableList<Room>;
 
@@ -21,7 +22,7 @@ class Floor(var level: Int){
 
         qri = Gl.randomInt(0, 2);
         quadrant = quadrants[qri];
-        val boss = BossRoom(1,Gl.randomInt(quadrant.x, quadrant.x+levelSize/2),Gl.randomInt(quadrant.y, quadrant.y+levelSize/2));
+        val boss = EndRoom(1,Gl.randomInt(quadrant.x, quadrant.x+levelSize/2),Gl.randomInt(quadrant.y, quadrant.y+levelSize/2));
         quadrants.removeAt(qri);
 
         qri = Gl.randomInt(0, 1);
@@ -84,4 +85,5 @@ class Floor(var level: Int){
             r.Finalize(this);
         }
     }
+
 }
