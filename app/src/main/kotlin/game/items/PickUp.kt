@@ -1,7 +1,7 @@
 package game.items
 
 import game.*
-import game.Actor.Player
+import game.actors.Player
 import game.base.Collider
 import game.base.Rectangle
 import game.Item.Item
@@ -20,25 +20,25 @@ abstract class PickUp(pos: Double2D, size: Double2D) : Drawable(pos,size,19) {
         collider.onEnter = fun(other: Collider){
             if(other.parent is Player){
                 onPickup(other.parent as Player);
-                Dispose();
+                dispose();
             };
         }
     }
 
-    override fun Draw(gc: GraphicsContext) {
+    override fun draw(gc: GraphicsContext) {
         val pos = getDrawPosition(position);
         gc.drawImage(sprite,pos.x,pos.y,size.x,size.y);
     }
 
-    override fun Update(elapsed_ms: Long) {
+    override fun update(elapsed_ms: Long) {
         collider.position = position;
     }
 
-    abstract fun onPickup(p:Player);
+    abstract fun onPickup(p: Player);
 
-    override fun Dispose() {
-        collider.dispose();
-        super.Dispose();
+    override fun dispose() {
+        collider.Dispose();
+        super.dispose();
     }
 
 
@@ -54,14 +54,14 @@ class HeartPickup(pos:Double2D) : PickUp(pos,Double2D(32.0,32.0)){
         force = Double2D(x,y);
     }
 
-    override fun Update(elapsed_ms: Long) {
+    override fun update(elapsed_ms: Long) {
         position += force;
         force *= 0.95;
-        super.Update(elapsed_ms);
+        super.update(elapsed_ms);
     }
 
     override fun onPickup(p: Player) {
-        p.score.plus(25);
+        Gl.score += 25;
         p.health++;
     }
 }
@@ -74,7 +74,7 @@ class ItemPickup(pos:Double2D, private val item: Item): PickUp(pos,Double2D(32.0
     override val sprite:Image = Image(FileInputStream(item.path));
 
     override fun onPickup(p: Player) {
-        p.score.plus(50);
+        Gl.score += 50;
         p.items.add(item);
         item.onPickup(p);
     }

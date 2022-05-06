@@ -15,40 +15,41 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
         fun collideAll(){
 
             for(i in colliders.size-1 downTo 0){
+                val first = colliders[i];
                 for(n in i-1 downTo 0){
-                    if(!colliders[i].matchingLayer(colliders[n]))continue;
-                    if(!colliders[i].active || !colliders[n].active)continue;
-                    val colliding = colliders[i].isColliding(colliders[n]);
-                    if(colliders[i].isIntersecting(colliders[n].closestPointTo(colliders[i]))){
+                    val second = colliders[n];
+                    if(!first.matchingLayer(second))continue;
+                    val colliding = first.isColliding(second);
+                    if(first.isIntersecting(second.closestPointTo(first))){
                         if(colliding){
-                            colliders[i].onStay(colliders[n]);
-                            colliders[n].onStay(colliders[i]);
+                            first.onStay(second);
+                            second.onStay(first);
                         }
                         else{
-                            colliders[i].collisions.add(colliders[n]);
-                            colliders[n].collisions.add(colliders[i]);
-                            colliders[i].onEnter(colliders[n]);
-                            colliders[n].onEnter(colliders[i]);
+                            first.collisions.add(second);
+                            second.collisions.add(first);
+                            first.onEnter(second);
+                            second.onEnter(first);
                         }
-                        if(colliders[i].rigid && colliders[n].rigid){
-                            if(colliders[i].moved) colliders[i].moveBack(colliders[n]);
-                            else if(colliders[n].moved) colliders[n].moveBack(colliders[i]);
+                        if(first.rigid && second.rigid){
+                            if(first.moved) first.moveBack(second);
+                            else if(second.moved) second.moveBack(first);
                         }
                     }
                     else{
                         if(colliding){
-                            colliders[i].collisions.remove(colliders[n]);
-                            colliders[n].collisions.remove(colliders[i]);
-                            colliders[i].onExit(colliders[n]);
-                            colliders[n].onExit(colliders[i]);
+                            first.collisions.remove(second);
+                            second.collisions.remove(first);
+                            first.onExit(second);
+                            second.onExit(first);
                         }
                     }
                 }
-                colliders[i].applyVectors();
+                first.applyVectors();
             }
         }
 
-        fun dispose(){
+        fun Dispose(){
             colliders.removeAll(disposing);
             disposing.clear();
         }
@@ -57,8 +58,10 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
     private fun applyVectors(){
         currentCenter += deltaVector;
         deltaVector = Double2D();
-        parent.position = position;
-        lastPosition = position;
+        if(!static){
+            parent.position = position
+            lastPosition = position;
+        };
     }
 
     init{
@@ -84,7 +87,19 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
     var static = false;
 
     //is the collider enabled
-    var active = true;
+    private var active = true;
+    var Active:Boolean get() = active;
+                set(value) {
+                    if(value != active){
+                        if(value){
+                            colliders.add(this);
+                        }
+                        else{
+                            colliders.remove(this);
+                        }
+                        active = value;
+                    }
+                }
 
     //how much can you push this collider [0..1]
     var weight = 0.5;
@@ -148,7 +163,7 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
         other.position -= vec*f2; //TODO prevent pushing inside colliders, maybe store if the collider has been moved back already this pass.
     }
 
-    fun dispose(){
+    fun Dispose(){
         disposing.add(this);
     }
 

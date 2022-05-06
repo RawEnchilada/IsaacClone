@@ -3,7 +3,7 @@ package game.map;
 import game.Drawable;
 import game.base.Rectangle;
 import game.base.Collider;
-import game.Actor.Player
+import game.actors.Player
 import game.extension.Double2D
 import javafx.scene.SnapshotParameters
 import javafx.scene.canvas.GraphicsContext
@@ -57,9 +57,9 @@ class Door(parent:Room, var target: Room, pos:Double2D, direction:Direction) : D
         }
     }
 
-    override fun Update(elapsed_ms:Long){}
+    override fun update(elapsed_ms:Long){}
 
-    override fun Draw(gc:GraphicsContext){
+    override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
         gc.drawImage(sprite, pos.x, pos.y, size.x+8.0, size.y+8.0);
     }

@@ -1,9 +1,8 @@
-package game.Actor;
+package game.actors;
 
 import game.Drawable
 import game.Gl
 import game.extension.Double2D;
-import game.Projectile
 import game.base.Rectangle
 
 
@@ -23,7 +22,7 @@ abstract class Actor(pos:Double2D,size:Double2D,zindex:Int) : Drawable(pos,size,
     var health get() = _health;
             set(value){
                 _health = value;     
-                if(_health <= 0)Dispose();
+                if(_health <= 0) die();
             }
 
 
@@ -31,7 +30,7 @@ abstract class Actor(pos:Double2D,size:Double2D,zindex:Int) : Drawable(pos,size,
         health-=amount;
     }
 
-    override fun Update(elapsed_ms:Long){
+    override fun update(elapsed_ms:Long){
         collider.position = position;
     }
 
@@ -39,20 +38,20 @@ abstract class Actor(pos:Double2D,size:Double2D,zindex:Int) : Drawable(pos,size,
         ReduceHealth(bullet.damage);
     }
 
-    open fun Die(){
-        Dispose();
+    open fun die(){
+        dispose();
     }
 
-    open fun Shoot(vector:Double2D){
+    open fun shoot(vector:Double2D){
         if(Gl.elapsedTime-lastShot > 1000/fireRate){
             lastShot = Gl.elapsedTime;
             Projectile(this,1, center, 15.0, vector,bulletSpeed);
         }
     }
 
-    override fun Dispose(){
-        collider.dispose();
-        super.Dispose();
+    override fun dispose(){
+        collider.Dispose();
+        super.dispose();
     }
     
 }

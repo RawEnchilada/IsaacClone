@@ -1,6 +1,6 @@
 package game.ui;
 
-import game.Actor.Player
+import game.actors.Player
 import game.Gl;
 import game.extension.Double2D;
 import game.map.Room;
@@ -20,7 +20,7 @@ class Minimap(floor:MutableList<Room>,pos:Double2D = Gl.wSize*0.05,size:Double2D
     val floor:MutableList<Room>;
 
     init{
-        if(Gl.minimap != null)Gl.minimap!!.Dispose();
+        if(Gl.minimap != null)Gl.minimap!!.dispose();
         Gl.minimap = this;
         this.floor = floor;
         tiles = Array(floor.size){Double2D()};
@@ -30,7 +30,7 @@ class Minimap(floor:MutableList<Room>,pos:Double2D = Gl.wSize*0.05,size:Double2D
         currentTile = tiles[0];
     }
 
-    override fun Update(elapsed_ms:Long){
+    override fun update(elapsed_ms:Long){
 
     }
 
@@ -40,7 +40,7 @@ class Minimap(floor:MutableList<Room>,pos:Double2D = Gl.wSize*0.05,size:Double2D
         viewPosition = currentTile+tileSize*0.5-mapCenter+size/Gl.wSize*tileSize;
     }
 
-    override fun Draw(gc:GraphicsContext){
+    override fun draw(gc:GraphicsContext){
         if(maximized){
 
         }

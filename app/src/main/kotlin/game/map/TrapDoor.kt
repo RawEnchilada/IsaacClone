@@ -2,7 +2,7 @@ package game.map
 
 import game.*
 
-import game.Actor.Player
+import game.actors.Player
 import game.base.Collider
 import game.base.Rectangle
 import game.extension.Double2D
@@ -30,15 +30,15 @@ class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2,
         collider.onEnter = fun(other: Collider){
             if(isOpen && other.parent is Player){
                 Gl.nextFloor();
-                collider.active = false;
-                Dispose();
+                collider.Active = false;
+                dispose();
             }
         }
     }
 
-    override fun Update(elapsed_ms:Long){}
+    override fun update(elapsed_ms:Long){}
 
-    override fun Draw(gc:GraphicsContext){
+    override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
         gc.drawImage(sprite, pos.x, pos.y, size.x, size.y);
     }

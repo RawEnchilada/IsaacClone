@@ -1,23 +1,24 @@
 package game;
 
-import game.Actor.Player
 import game.base.Collider
 import game.Item.Item
+import game.actors.Player
 import game.extension.Double2D
 import game.extension.Int2D
 import game.ui.HealthBar
 import game.ui.Minimap
-import javafx.scene.Cursor
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import kotlin.random.Random
 import game.map.*;
+import game.ui.Menu
 
 object Gl{
 
-    var r:Random = Random(0);
-    var seed:Int = 0;
+    var score = 0;
+    private var r:Random = Random(0);
+    private var seed:Int = 0;
     var wSize:Double2D = Double2D();
     var minimap:Minimap? = null;
     var show_colliders = false;
@@ -28,6 +29,8 @@ object Gl{
     val elapsedTime get() = (System.nanoTime()-msAtStart)/1_000_000;
     private var level = 0;
     private var floor:Floor? = null;
+    var running:Boolean = true
+        private set
 
     fun initialize(w:Double,h:Double){
 
@@ -37,15 +40,25 @@ object Gl{
         r = Random(seed);
         println("seed: $seed");
 
-        Gl.scene.addEventHandler(KeyEvent.KEY_PRESSED, fun(key){
-            if(key.code == KeyCode.F1)show_colliders = !show_colliders;
-            else if(key.code == KeyCode.F2)ghost_mode = !ghost_mode;
-            else if(key.code == KeyCode.F3)show_fps = !show_fps;
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, fun(key){
+            when (key.code) {
+                KeyCode.F1 -> show_colliders = !show_colliders
+                KeyCode.F2 -> ghost_mode = !ghost_mode
+                KeyCode.F3 -> show_fps = !show_fps
+                else -> {}
+            };
         });
-        Gl.scene.setCursor(Cursor.NONE);
 
         Item.initItems();
-        nextFloor(); //TODO render menu first.
+        Menu();
+    }
+    fun restart(){
+        score = 0;
+        seed = (0..(Int.MAX_VALUE-50000)).random();
+        r = Random(seed);
+        println("seed: $seed");
+        level = 0;
+        nextFloor();
     }
     fun randomDouble(from:Double = 0.0,to:Double = 1.0):Double{
         val result = r.nextDouble(from,to);
@@ -59,9 +72,9 @@ object Gl{
     }
 
     fun nextFloor(){
-        var p:Player? = null;
+        var p: Player? = null;
         if(Player.player != null){
-            Player.player!!.score.plus(1000);
+            score += 1000;
             p = Player.player;
         };
         level++;
@@ -73,7 +86,7 @@ object Gl{
         floor = Floor(level);
         Minimap(floor!!.rooms);
         HealthBar();
-        game.ui.Cursor();
+        game.ui.Cursor(false);
         floor!!.Finalize();
 
         if(p != null){
@@ -81,5 +94,15 @@ object Gl{
             Drawable.drawables.add(p);
             Collider.colliders.add(p.collider);
         };
+    }
+
+    fun exit() {
+        running = false;
+    }
+
+    fun disposeAll() {
+        for(i in Component.components.size-1 downTo 0)Component.components[i].dispose();
+        for(i in Drawable.drawables.size-1 downTo 0)Drawable.drawables[i].dispose();
+        for(i in Collider.colliders.size-1 downTo 0)Collider.colliders[i].Dispose();
     }
 }

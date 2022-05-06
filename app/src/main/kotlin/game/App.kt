@@ -23,8 +23,6 @@ class Main : Application(){
         val scene = Scene(pane,width, height);
         Gl.scene = scene;
         Gl.initialize(width,height);
-        val fps = 60;
-
         gc.setImageSmoothing(false);
 
         var lastFrameTime = System.nanoTime();
@@ -47,25 +45,35 @@ class Main : Application(){
         scene.addEventHandler(MouseEvent.MOUSE_RELEASED, fun(key){
             InputListener.Setter.MouseReleased(key);
         });
+        var end: (() -> Unit)? = null;
 
         val loop = object:AnimationTimer() {
             override fun handle(current_ns: Long) {
                 val elapsed_ms = Math.max((current_ns - lastFrameTime) / 1_000_000,1);
                 lastFrameTime = current_ns;
 
-                Component.UpdateAll(elapsed_ms);
+                Component.updateAll(elapsed_ms);
                 Collider.collideAll();
 
-                Drawable.DrawAll(gc,elapsed_ms);
+                Drawable.drawAll(gc,elapsed_ms);
 
-                Component.Dispose();
-                Drawable.Dispose();
-                Collider.dispose();
-
-                //limit fps to not jump up to 200 which causes random movement
+                Component.dispose();
+                Drawable.dispose();
+                Collider.Dispose();
+                if(!Gl.running){
+                    end?.invoke();
+                }
             }
         }
         loop.start();
+
+        end = fun(){
+            Component.components.clear();
+            Drawable.drawables.clear();
+            Collider.colliders.clear();
+            loop.stop();
+            stage.close();
+        };
 
         stage.scene = scene;
         stage.show();

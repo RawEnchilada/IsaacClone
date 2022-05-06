@@ -1,4 +1,4 @@
-package game.Actor;
+package game.actors;
 
 
 import game.extension.Double2D;
@@ -8,37 +8,36 @@ import javafx.scene.canvas.GraphicsContext;
 import game.Item.Item;
 import game.map.*;
 import game.*;
+import game.ui.Restart
 import kotlin.math.absoluteValue
 
 
 class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0)) : Actor(pos,size,100){
     companion object{
-        var player:Player? = null;
+        var player: Player? = null;
     }
 
-    val anim:AnimationPlayer;
+    private val anim:AnimationPlayer = AnimationPlayer(
+            "src/main/resources/player.png",
+            listOf(
+                    AnimationData("idle",1,true,3),
+                    AnimationData("up",4,true,3),
+                    AnimationData("down",4,true,3),
+                    AnimationData("left",4,true,3),
+                    AnimationData("right",4,true,3),
+                    AnimationData("shootUp",2,false,2),
+                    AnimationData("shootDown",2,false,2),
+                    AnimationData("shootLeft",2,false,2),
+                    AnimationData("shootRight",2,false,2),
+            )
+    );
     var currentRoom:Room = starting;
     val items:MutableList<Item> = mutableListOf();
-    var score: Long = 0L;
 
     private var hitGate:Long = 0;
     init{
-        anim = AnimationPlayer(
-                "src/main/resources/player.png",
-                listOf(
-                        AnimationData("idle",1,true,3),
-                        AnimationData("up",4,true,3),
-                        AnimationData("down",4,true,3),
-                        AnimationData("left",4,true,3),
-                        AnimationData("right",4,true,3),
-                        AnimationData("shootUp",2,false,2),
-                        AnimationData("shootDown",2,false,2),
-                        AnimationData("shootLeft",2,false,2),
-                        AnimationData("shootRight",2,false,2),
-                )
-        );
         anim.fps = 8;
-        if(player == null)player = this;
+        if(player == null) player = this;
         collider.rigid = true;
         collider.onLayer = 0b0100;
         collider.useLayer = 0b1010;
@@ -57,7 +56,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         }
     }
  
-    override fun Update(elapsed_ms:Long){
+    override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
         var delta = Double2D();
         if(InputListener.isKeyDown(KeyCode.A)) delta += Double2D.constants.left;
@@ -79,11 +78,11 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
 
 
 
-        if(InputListener.isKeyDown(KeyCode.SPACE))CenterCamera(center);
+        if(InputListener.isKeyDown(KeyCode.SPACE))centerCamera(center);
 
         if(InputListener.isMouseDown(MouseButton.PRIMARY)){
             val vector = InputListener.mousePosition-getDrawPosition(center);
-            Shoot(vector);
+            shoot(vector);
             if(vector.x.absoluteValue > vector.y.absoluteValue){
                 if(vector.x > 0)anim.Animate("shootRight");
                 else anim.Animate("shootLeft");
@@ -95,7 +94,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         };
 
         if (Gl.ghost_mode){
-            CenterCamera(position+size/2);
+            centerCamera(position+size/2);
         }
 
         collider.rigid = !Gl.ghost_mode;
@@ -105,7 +104,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         anim.Update(elapsed_ms);
     }
 
-    override fun Draw(gc:GraphicsContext){
+    override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
         gc.drawImage(anim.Sprite, pos.x, pos.y, size.x, size.y);
     }
@@ -123,7 +122,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         }
     }
 
-    override fun gotHit(bullet:Projectile){
+    override fun gotHit(bullet: Projectile){
         var canBeHit = true;
         for(item in items){
             canBeHit = canBeHit && item.onHit(bullet);
@@ -133,7 +132,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         }
     }
 
-    override fun Shoot(vector:Double2D){
+    override fun shoot(vector:Double2D){
         if(Gl.elapsedTime-lastShot > 1000/fireRate){
             lastShot = Gl.elapsedTime;
             val p = Projectile(this,1, center, 15.0, vector.normalized(),bulletSpeed);
@@ -143,13 +142,13 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         }
     }
 
-    override fun Die() {
-        //TODO end game, write score
-        super.Die()
+    override fun die() {
+        Gl.disposeAll();
+        Restart();
     }
 
-    override fun Dispose(){
-        super.Dispose();
+    override fun dispose(){
+        super.dispose();
     }
 
     

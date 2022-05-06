@@ -1,6 +1,6 @@
 package game.ui
 
-import game.Actor.Player
+import game.actors.Player
 import game.Gl
 import game.extension.Double2D
 import javafx.scene.canvas.GraphicsContext
@@ -14,7 +14,7 @@ class HealthBar(pos:Double2D = Double2D(Gl.wSize.x/2.0,32.0),size:Double2D = Dou
 
 
 
-    override fun Draw(gc: GraphicsContext) {
+    override fun draw(gc: GraphicsContext) {
         if(Player.player == null)return;
         val num = Player.player!!.health;
         val fullhearts = floor(num / 2.0).toInt();
@@ -29,7 +29,7 @@ class HealthBar(pos:Double2D = Double2D(Gl.wSize.x/2.0,32.0),size:Double2D = Dou
         }
     }
 
-    override fun Update(elapsed_ms: Long) {
+    override fun update(elapsed_ms: Long) {
     }
 
 }

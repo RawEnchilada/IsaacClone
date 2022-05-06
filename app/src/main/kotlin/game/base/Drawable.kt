@@ -12,15 +12,16 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
         var drawables = mutableListOf<Drawable>();
         val debugPoints = mutableListOf<Double2D>(); //TODO remove
         private var disposing = mutableListOf<Drawable>();
+        val screenCenter = Gl.wSize/2;
         
-        fun DrawAll(gc:GraphicsContext,elapsed_ms:Long){
+        fun drawAll(gc:GraphicsContext, elapsed_ms:Long){
             gc.clearRect(0.0,0.0,Gl.wSize.x,Gl.wSize.y);
             for(d in drawables){
-                d.Draw(gc);
+                d.draw(gc);
             }    
             if(Gl.show_colliders){
                 for(c in Collider.colliders){
-                    if(c.active)gc.stroke = Color.GREEN;
+                    if(c.Active)gc.stroke = Color.GREEN;
                     else gc.stroke = Color.RED;
                     c.drawOutline(gc);
                 }
@@ -37,7 +38,7 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
         }
 
 
-        fun Dispose(){
+        fun dispose(){
             drawables.removeAll(disposing);
             disposing.clear();
         }
@@ -49,15 +50,15 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
         fun getDrawPosition(vec:Double2D):Double2D{
             return vec-cameraPosition;
         }
-        fun CenterCamera(vec:Double2D){
+        fun centerCamera(vec:Double2D){
             cameraPosition = vec-cameraSize/2;
         }
     }
 
-    public var zIndex = zindex;
-    public var size = size;
+    var zIndex = zindex;
+    var size = size;
 
-    abstract fun Draw(gc:GraphicsContext);
+    abstract fun draw(gc:GraphicsContext);
 
 
     init{
@@ -77,9 +78,9 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
     constructor(pos:Double2D,zindex:Int):this(pos,cameraSize.toDouble2D(),zindex);
     constructor(pos:Double2D,size:Int2D,zindex:Int):this(pos,size.toDouble2D(),zindex);
 
-    override fun Dispose(){
+    override fun dispose(){
         disposing.add(this);
-        super.Dispose();      
+        super.dispose();
     }
     
 }

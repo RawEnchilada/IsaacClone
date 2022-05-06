@@ -3,9 +3,9 @@ package game.map;
 import game.Drawable;
 import game.base.Rectangle;
 import game.Gl;
-import game.Actor.Actor
-import game.Actor.Enemy
-import game.Actor.Player
+import game.actors.Actor
+import game.actors.Enemy
+import game.actors.Player
 import game.Item.Item
 import game.items.ItemPickup
 import game.extension.Int2D;
@@ -145,10 +145,10 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     }
 
     open protected fun PrepareRoom(floor:Floor){
-        enemies.addAll(Enemy.getEnemies(floor.level, this));
+        enemies.addAll(Enemy.createEnemies(floor.level, this));
     }
 
-    override fun Update(elapsed_ms:Long){
+    override fun update(elapsed_ms:Long){
         if(enemies.size <= 0){
             if(!cleared)Cleared();
             for(d in doors){
@@ -158,9 +158,9 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
         }
     }
 
-    override fun Draw(gc:GraphicsContext){
+    override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(background, pos.x.toDouble(), pos.y.toDouble(), size.x.toDouble(), size.y.toDouble());
+        gc.drawImage(background, pos.x, pos.y, size.x, size.y);
 
     }
 
@@ -169,7 +169,7 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     }
 
     fun focusRoom(){
-        Drawable.CenterCamera(center);
+        Drawable.centerCamera(center);
         Gl.minimap?.SetCurrentTile(index);
         for(n in neighbors){
             if (n != null) {
@@ -180,7 +180,7 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
             Thread.sleep(500);
             for(e in enemies){
                 e.active = true;
-                e.collider.active = true;
+                e.collider.Active = true;
             }
         }
     }
@@ -188,10 +188,10 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     fun SetActive(b:Boolean){
         active = b;
         for(c in colliders){
-            c.active = b;
+            c.Active = b;
         }
         for(d in doors){
-            d.collider.active = b;
+            d.collider.Active = b;
         }
     }
 
@@ -206,11 +206,11 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
         }
     }
 
-    override fun Dispose() {
-        for(c in colliders)c.dispose();
-        for(d in doors)d.Dispose();
-        for(e in enemies)e.Dispose();
-        super.Dispose();
+    override fun dispose() {
+        for(c in colliders)c.Dispose();
+        for(d in doors)d.dispose();
+        for(e in enemies)e.dispose();
+        super.dispose();
     }
     
 }
@@ -241,7 +241,7 @@ class EndRoom(index:Int,v:Int2D) : Room(index,v) {
 
     val trapDoor = TrapDoor(this);
 
-    override fun Update(elapsed_ms: Long) {
+    override fun update(elapsed_ms: Long) {
         if(enemies.size <= 0){
             if(!cleared)Cleared();
             for(d in doors){

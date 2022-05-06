@@ -1,7 +1,6 @@
-package game;
+package game.actors;
 
-import game.Actor.Actor
-import game.Actor.Enemy
+import game.Drawable
 import game.base.Collider
 import game.base.Rectangle
 import game.extension.Double2D;
@@ -9,7 +8,7 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
 import game.extension.Event;
 
-open class Projectile(parent:Actor, var damage: Int, position:Double2D, var radius: Double, force:Double2D, speed:Double = 1.0):Drawable(position,20){
+open class Projectile(parent: Actor, var damage: Int, position:Double2D, var radius: Double, force:Double2D, speed:Double = 1.0): Drawable(position,20){
 
     private var force:Double2D = force.normalized();
     var collider: Rectangle = Rectangle(this, position, Double2D(radius-1,radius-1));
@@ -34,29 +33,29 @@ open class Projectile(parent:Actor, var damage: Int, position:Double2D, var radi
             for (i in 0 until onEnterEvent.size){
                 destroy = destroy && onEnterEvent[i](other);
             }
-            if(destroy)Dispose();
+            if(destroy) dispose();
         }
     }
 
-    override fun Update(elapsed_ms:Long){
+    override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
         updateEvent(elapsed_ms);
         this.position += force*elapsed_s*baseSpeed*speedMult;
         collider.position = position;
         collider.size = Double2D(radius-1,radius-1);
         ttl -= elapsed_ms;
-        if(ttl <= 0)Dispose();
+        if(ttl <= 0) dispose();
     }
 
-    override fun Draw(gc:GraphicsContext){
+    override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position-Double2D(0.5,0.5));
         gc.stroke = strokeColor;
         gc.fill = fillColor;
         gc.fillOval(pos.x, pos.y, radius, radius);
     }
 
-    override fun Dispose(){
-        collider.dispose();
-        super.Dispose();
+    override fun dispose(){
+        collider.Dispose();
+        super.dispose();
     }
 }

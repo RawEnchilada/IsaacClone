@@ -7,13 +7,13 @@ abstract class Component(pos:Double2D){
     companion object{
         var components = mutableListOf<Component>();
         private var disposing = mutableListOf<Component>();
-        fun UpdateAll(elapsed_ms:Long){
+        fun updateAll(elapsed_ms:Long){
             for(i in (components.size-1 downTo 0)){
                 if(components[i].active)
-                    components[i].Update(elapsed_ms);
+                    components[i].update(elapsed_ms);
             }
         }
-        fun Dispose(){
+        fun dispose(){
             components.removeAll(disposing);
             disposing.clear();
         }
@@ -22,13 +22,13 @@ abstract class Component(pos:Double2D){
     var position = pos;
     var active = true;
 
-    abstract fun Update(elapsed_ms:Long);
+    abstract fun update(elapsed_ms:Long);
 
     init{
         components.add(this);
     }
 
-    open fun Dispose(){
+    open fun dispose(){
         disposing.add(this);
     }
 }
