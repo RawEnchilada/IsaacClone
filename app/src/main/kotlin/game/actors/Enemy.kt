@@ -1,6 +1,7 @@
 package game.Actor;
 
 
+import game.AnimationData
 import game.AnimationPlayer
 import game.extension.Double2D;
 import java.io.FileInputStream;
@@ -52,7 +53,7 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
 
     override fun Draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(anim.sprite, pos.x.toDouble(), pos.y.toDouble(), size.x.toDouble(), size.y.toDouble());
+        gc.drawImage(anim.Sprite, pos.x.toDouble(), pos.y.toDouble(), size.x.toDouble(), size.y.toDouble());
     }
 
     override fun Die(){
@@ -74,10 +75,12 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
 class TowerEnemy(room:Room) : Enemy(room){
 
     override val anim: AnimationPlayer = AnimationPlayer(
-        "src/main/resources/tower.png",
-        Double2D(80.0,100.0),
-        mapOf(
-                Pair("move",4)
+        "src/main/resources/enemies/tower.png",
+        listOf(
+            AnimationData("shootUp",2,false,2),
+            AnimationData("shootDown",2,false,2),
+            AnimationData("shootLeft",2,false,2),
+            AnimationData("shootRight",2,false,2)
         )
     );
 
@@ -89,10 +92,12 @@ class TowerEnemy(room:Room) : Enemy(room){
 
 class TankEnemy(room:Room) : Enemy(room){
     override val anim: AnimationPlayer = AnimationPlayer(
-            "src/main/resources/tank.png",
-            Double2D(80.0,100.0),
-            mapOf(
-                    Pair("move",4)
+            "src/main/resources/enemies/tank.png",
+            listOf(
+                    AnimationData("up",4,true,3),
+                    AnimationData("down",4,true,3),
+                    AnimationData("left",4,true,3),
+                    AnimationData("right",4,true,3)
             )
     );
     init{
@@ -108,10 +113,12 @@ class TankEnemy(room:Room) : Enemy(room){
 
 class SpasticEnemy(room:Room) : Enemy(room,Double2D(64.0,64.0)){
     override val anim: AnimationPlayer = AnimationPlayer(
-            "src/main/resources/spastic.png",
-            Double2D(80.0,100.0),
-            mapOf(
-                    Pair("move",4)
+            "src/main/resources/enemies/spastic.png",
+            listOf(
+                    AnimationData("up",4,true,3),
+                    AnimationData("down",4,true,3),
+                    AnimationData("left",4,true,3),
+                    AnimationData("right",4,true,3)
             )
     );
     init{

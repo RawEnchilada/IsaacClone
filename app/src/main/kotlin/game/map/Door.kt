@@ -13,7 +13,7 @@ import javafx.scene.paint.Color
 import java.io.FileInputStream
 
 
-class Door(parent:Room,target:Room,pos:Double2D,direction:Direction) : Drawable(pos,doorSize,parent.zIndex+1){
+class Door(parent:Room, var target: Room, pos:Double2D, direction:Direction) : Drawable(pos-Double2D(4.0,4.0),doorSize,parent.zIndex+1){
     companion object{
         private val doorOpen = Image(FileInputStream("src/main/resources/door.png"));
         private val doorClosed = Image(FileInputStream("src/main/resources/doorClosed.png"));
@@ -28,7 +28,6 @@ class Door(parent:Room,target:Room,pos:Double2D,direction:Direction) : Drawable(
     var sprite:Image = doorOpen;
     var openview:ImageView;
     var closedview: ImageView;
-    var target = target;
     var collider: Rectangle;
     var isOpen = true;
     var rotation = 0.0;
@@ -46,7 +45,7 @@ class Door(parent:Room,target:Room,pos:Double2D,direction:Direction) : Drawable(
         closedview.rotate = rotation;
         sprite = openview.snapshot(params,null);
 
-        collider = Rectangle(this, pos-Double2D(8.0,8.0), Double2D(doorSize.x+16.0,doorSize.y+16.0));
+        collider = Rectangle(this, pos-Double2D(4.0,4.0), doorSize+Double2D(8.0,8.0));
         collider.rigid = false;
         collider.onLayer = 0b0001;
         collider.useLayer = 0b0100;
@@ -62,7 +61,7 @@ class Door(parent:Room,target:Room,pos:Double2D,direction:Direction) : Drawable(
 
     override fun Draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(sprite, pos.x, pos.y, size.x, size.y);
+        gc.drawImage(sprite, pos.x, pos.y, size.x+8.0, size.y+8.0);
     }
 
     fun open(){

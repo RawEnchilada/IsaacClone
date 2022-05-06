@@ -49,7 +49,7 @@ open class Projectile(parent:Actor, var damage: Int, position:Double2D, var radi
     }
 
     override fun Draw(gc:GraphicsContext){
-        val pos = getDrawPosition(position-Double2D(radius,radius));
+        val pos = getDrawPosition(position-Double2D(0.5,0.5));
         gc.stroke = strokeColor;
         gc.fill = fillColor;
         gc.fillOval(pos.x, pos.y, radius, radius);

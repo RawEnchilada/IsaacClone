@@ -178,7 +178,10 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
         }
         thread {
             Thread.sleep(500);
-            SetActive(true);
+            for(e in enemies){
+                e.active = true;
+                e.collider.active = true;
+            }
         }
     }
 
@@ -197,9 +200,9 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
         for(d in doors){
             d.close();
         }
-        for(e in enemies){
-            e.active = true;
-            e.collider.active = true;
+        thread {
+            Thread.sleep(50);
+            SetActive(true);
         }
     }
 

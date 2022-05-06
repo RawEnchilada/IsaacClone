@@ -63,7 +63,6 @@ class Main : Application(){
                 Collider.dispose();
 
                 //limit fps to not jump up to 200 which causes random movement
-                Thread.sleep(10);
             }
         }
         loop.start();

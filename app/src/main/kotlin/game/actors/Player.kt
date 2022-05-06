@@ -8,7 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
 import game.Item.Item;
 import game.map.*;
 import game.*;
-
+import kotlin.math.absoluteValue
 
 
 class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0)) : Actor(pos,size,100){
@@ -25,11 +25,19 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
     init{
         anim = AnimationPlayer(
                 "src/main/resources/player.png",
-                Double2D(80.0,100.0),
-                mapOf(
-                        Pair("move",4)
+                listOf(
+                        AnimationData("idle",1,true,3),
+                        AnimationData("up",4,true,3),
+                        AnimationData("down",4,true,3),
+                        AnimationData("left",4,true,3),
+                        AnimationData("right",4,true,3),
+                        AnimationData("shootUp",2,false,2),
+                        AnimationData("shootDown",2,false,2),
+                        AnimationData("shootLeft",2,false,2),
+                        AnimationData("shootRight",2,false,2),
                 )
         );
+        anim.fps = 8;
         if(player == null)player = this;
         collider.rigid = true;
         collider.onLayer = 0b0100;
@@ -51,17 +59,43 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
  
     override fun Update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
+        var delta = Double2D();
+        if(InputListener.isKeyDown(KeyCode.A)) delta += Double2D.constants.left;
+        else if(InputListener.isKeyDown(KeyCode.D)) delta += Double2D.constants.right;
+        if(InputListener.isKeyDown(KeyCode.W)) delta += Double2D.constants.up;
+        else if(InputListener.isKeyDown(KeyCode.S)) delta += Double2D.constants.down;
 
-        if(InputListener.isKeyDown(KeyCode.W))position+=Double2D.constants.up*speed*elapsed_s;
-        else if(InputListener.isKeyDown(KeyCode.S))position+=Double2D.constants.down*speed*elapsed_s;
-        if(InputListener.isKeyDown(KeyCode.A))position+=Double2D.constants.left*speed*elapsed_s;
-        else if(InputListener.isKeyDown(KeyCode.D))position+=Double2D.constants.right*speed*elapsed_s;
-        if(InputListener.isKeyDown(KeyCode.SPACE))Drawable.CenterCamera(center);
+        position += delta*speed*elapsed_s;
 
-        if(InputListener.isMouseDown(MouseButton.PRIMARY))Shoot((InputListener.mousePosition-getDrawPosition(center)));
+        if(delta == Double2D())anim.Animate("idle");
+        else if(delta.x.absoluteValue > delta.y.absoluteValue){
+            if(delta.x > 0)anim.Animate("right");
+            else anim.Animate("left");
+        }
+        else{
+            if(delta.y > 0)anim.Animate("down");
+            else anim.Animate("up");
+        }
+
+
+
+        if(InputListener.isKeyDown(KeyCode.SPACE))CenterCamera(center);
+
+        if(InputListener.isMouseDown(MouseButton.PRIMARY)){
+            val vector = InputListener.mousePosition-getDrawPosition(center);
+            Shoot(vector);
+            if(vector.x.absoluteValue > vector.y.absoluteValue){
+                if(vector.x > 0)anim.Animate("shootRight");
+                else anim.Animate("shootLeft");
+            }
+            else{
+                if(vector.y > 0)anim.Animate("shootDown");
+                else anim.Animate("shootUp");
+            }
+        };
 
         if (Gl.ghost_mode){
-            Drawable.CenterCamera(position+size/2);
+            CenterCamera(position+size/2);
         }
 
         collider.rigid = !Gl.ghost_mode;
@@ -73,7 +107,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
 
     override fun Draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(anim.sprite, pos.x, pos.y, size.x, size.y);
+        gc.drawImage(anim.Sprite, pos.x, pos.y, size.x, size.y);
     }
 
     fun moveToRoom(target:Room,d: Direction){

@@ -43,11 +43,11 @@ javafx {
 
 application {
     // Define the main class for the application.
-    mainClass = 'GunGame.AppKt'
+    mainClass = 'game.AppKt'
 }
 
 jar {
     manifest {
-        attributes 'Main-Class': 'GunGame.Main'
+        attributes 'Main-Class': 'game.Main'
     }
 }
