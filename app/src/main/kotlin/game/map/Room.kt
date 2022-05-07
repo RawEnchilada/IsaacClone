@@ -57,18 +57,24 @@ enum class Direction(val value:Int){
 }
 
 
-open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawable(roomSize*v,10){
+open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
+
+    constructor(index: Int) : this(index,Int2D());
+
     companion object{
         val roomSize = Double2D(Gl.wSize.x,Gl.wSize.y);
-        private val roomBackground = Image(FileInputStream("src/main/resources/room.png")); 
+
     }
-    var gridPosition = v;
+    private var _gridPos = v;
+    var gridPosition get() = _gridPos
+                    set(value) {
+                        _gridPos = value;
+                        position = roomSize*value;
+                    }
     val center:Double2D
         get() = position+roomSize/2;
 
-    var neighbors: Array<Room?> = Array<Room?>(4){null};
-
-    var background:Image;
+    var neighbors: Array<Room?> = Array(4){null};
 
     var isKnown = false;
     var colliders = mutableListOf<Rectangle>();
@@ -78,29 +84,12 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     open val minimapColor = Color.color(0.6, 0.6, 0.6, 0.7);
     open val minimapColorCurrent = Color.color(0.8, 0.8, 0.8, 0.7);
 
-    constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y),null,Direction.left);
-
-    constructor(index:Int,v: Int2D):this(index,v,null,Direction.left);
-
     init{
-        background = roomBackground;
-        if(parent != null){
-            neighbors[direction.ordinal] = parent;
-            parent.neighbors[Direction.flip(direction).ordinal] = this;
-        }        
         active = false;
     }
 
     fun Finalize(floor:Floor){
         for(d in Direction.getValues()){
-            //check neighbors
-            val direction = Direction.values()[d];
-            val room = floor.getRoom(this.gridPosition+Direction.getVector(direction));
-            if(room != null && neighbors[d] == null){
-                neighbors[direction.ordinal] = room;
-                room.neighbors[Direction.flip(direction).ordinal] = this;
-            }
-
             val pos = Double2D();
             val doorPos = Double2D();
             val s = Double2D();
@@ -146,6 +135,7 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
 
     open protected fun PrepareRoom(floor:Floor){
         enemies.addAll(Enemy.createEnemies(floor.level, this));
+        isActive(false);
     }
 
     override fun update(elapsed_ms:Long){
@@ -159,9 +149,6 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     }
 
     override fun draw(gc:GraphicsContext){
-        val pos = getDrawPosition(position);
-        gc.drawImage(background, pos.x, pos.y, size.x, size.y);
-
     }
 
     open fun Cleared(){
@@ -169,13 +156,14 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     }
 
     fun focusRoom(){
-        Drawable.centerCamera(center);
+        centerCamera(center);
         Gl.minimap?.SetCurrentTile(index);
         for(n in neighbors){
             if (n != null) {
                 n.isKnown = true
             };
         }
+        if(enemies.size == 0)return;
         thread {
             Thread.sleep(500);
             for(e in enemies){
@@ -185,7 +173,7 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
         }
     }
 
-    fun SetActive(b:Boolean){
+    fun isActive(b:Boolean){
         active = b;
         for(c in colliders){
             c.Active = b;
@@ -196,13 +184,13 @@ open class Room(val index:Int,v:Int2D,parent:Room?,direction:Direction) : Drawab
     }
 
     open fun onEnter(){
+        thread {
+            Thread.sleep(50);
+            isActive(true);
+        }
         if(enemies.size == 0)return;
         for(d in doors){
             d.close();
-        }
-        thread {
-            Thread.sleep(50);
-            SetActive(true);
         }
     }
 
@@ -219,6 +207,9 @@ class StartRoom(index:Int,v:Int2D) : Room(index,v) {
     init{
         if(Player.player != null) {
             Player.player!!.position = center;
+            Player.player!!.collider.position = center;
+            Player.player!!.collider.position = center;
+            //We need to set the colliders position twice to override the last position which is used for swept calculations
             Player.player!!.currentRoom = this;
         }
         else Player(this,center);
@@ -233,13 +224,16 @@ class StartRoom(index:Int,v:Int2D) : Room(index,v) {
 }
 
 
-class EndRoom(index:Int,v:Int2D) : Room(index,v) {
+class EndRoom(index:Int) : Room(index) {
     override val minimapColor = Color.color(0.6, 0.1, 0.1, 0.7);
     override val minimapColorCurrent = Color.color(0.8, 0.2, 0.2, 0.7);
 
-    constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y));
 
-    val trapDoor = TrapDoor(this);
+    private lateinit var trapDoor:TrapDoor;
+    override fun PrepareRoom(floor:Floor){
+        trapDoor = TrapDoor(this);
+        isActive(false);
+    }
 
     override fun update(elapsed_ms: Long) {
         if(enemies.size <= 0){
@@ -258,12 +252,12 @@ class EndRoom(index:Int,v:Int2D) : Room(index,v) {
 }
 
 
-class ItemRoom(index:Int,v:Int2D) : Room(index,v) {
-    constructor(index:Int,x:Int,y:Int):this(index,Int2D(x,y));
+class ItemRoom(index:Int) : Room(index) {
     override val minimapColor = Color.color(0.6, 0.6, 0.1, 0.7);
     override val minimapColorCurrent = Color.color(0.8, 0.8, 0.2, 0.7);
 
     override fun PrepareRoom(floor:Floor){
         ItemPickup(center,Item.getRandomItem());
+        isActive(false);
     }
 }

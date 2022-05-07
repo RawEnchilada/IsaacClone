@@ -69,11 +69,9 @@ class AnimationPlayer(
         grid = Int2D(sheet.width/frameSize.x,sheet.height/frameSize.y);
         writeableImage = WritableImage(frameSize.x.toInt(), frameSize.y.toInt());
         image = ImageView(sheet);
-        var i = 0;
-        for(anim in anims){
+        for((i, anim) in anims.withIndex()){
             animations.add(anim);
             anim.index = i;
-            i++;
         }
         ca = animations.first();
         lastAnimation = animations.first();

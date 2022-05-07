@@ -84,10 +84,9 @@ object Gl{
         Collider.colliders.clear();
 
         floor = Floor(level);
-        Minimap(floor!!.rooms);
+        Minimap(floor!!.gridAsList);
         HealthBar();
         game.ui.Cursor(false);
-        floor!!.Finalize();
 
         if(p != null){
             Component.components.add(p);

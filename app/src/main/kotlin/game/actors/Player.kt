@@ -17,6 +17,9 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         var player: Player? = null;
     }
 
+    private var changeRooms = false;
+    private var targetRoom = starting;
+
     private val head:AnimationPlayer = AnimationPlayer(
             "src/main/resources/playerHead.png",
             listOf(
@@ -69,6 +72,15 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
  
     override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
+
+        if(changeRooms){
+            currentRoom.isActive(false);
+            currentRoom = targetRoom;
+            targetRoom.onEnter();
+            targetRoom.focusRoom();
+            changeRooms = false;
+        }
+
         var delta = Double2D();
         if(InputListener.isKeyDown(KeyCode.A)) delta += Double2D.constants.left;
         else if(InputListener.isKeyDown(KeyCode.D)) delta += Double2D.constants.right;
@@ -138,10 +150,8 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
     }
 
     fun moveToRoom(target:Room,d: Direction){
-        currentRoom.SetActive(false);
-        currentRoom = target;
-        target.focusRoom();
-        target.onEnter();
+        changeRooms = true;
+        targetRoom = target;
         when(d){
             Direction.left -> position.x = target.position.x+Room.roomSize.x-Door.doorSize.x-size.x-16.0;
             Direction.right -> position.x = target.position.x+ Door.doorSize.x+16.0;

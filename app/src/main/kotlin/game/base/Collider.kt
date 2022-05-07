@@ -49,7 +49,7 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
             }
         }
 
-        fun Dispose(){
+        fun dispose(){
             colliders.removeAll(disposing);
             disposing.clear();
         }

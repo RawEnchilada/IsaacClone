@@ -6,19 +6,22 @@ import game.actors.Player
 import game.base.Collider
 import game.base.Rectangle
 import game.extension.Double2D
+import javafx.geometry.Rectangle2D
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.image.WritableImage
 import java.io.FileInputStream
 
 
 class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2, trapDoorSize.y),trapDoorSize,parent.zIndex+1){
     companion object{
-        private val trapDoorOpen = Image(FileInputStream("src/main/resources/trapDoor.png"));
-        private val trapDoorClosed = Image(FileInputStream("src/main/resources/trapDoorClosed.png"));
-        val trapDoorSize = Double2D(trapDoorOpen.width,trapDoorOpen.height);
+        private val trapDoor = Image(FileInputStream("src/main/resources/trapDoor.png"));
+        val trapDoorSize = Double2D(trapDoor.width/2,trapDoor.height);
     }
 
-    var sprite:Image = trapDoorClosed;
+    val sprite: WritableImage = WritableImage(Door.doorSize.x.toInt(), Door.doorSize.y.toInt());
+    private val imgview: ImageView;
     var collider: Rectangle = Rectangle(this, position, Double2D(trapDoorSize.x,trapDoorSize.y));
     var isOpen = false;
 
@@ -34,6 +37,8 @@ class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2,
                 dispose();
             }
         }
+        imgview = ImageView(trapDoor);
+        close();
     }
 
     override fun update(elapsed_ms:Long){}
@@ -44,11 +49,13 @@ class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2,
     }
 
     fun open(){
-        sprite = trapDoorOpen;
+        imgview.viewport = Rectangle2D(0.0,0.0, trapDoorSize.x, trapDoorSize.y);
+        imgview.snapshot(Door.params,sprite);
         isOpen = true;
     }
     fun close(){
-        sprite = trapDoorClosed;
+        imgview.viewport = Rectangle2D(trapDoorSize.x,0.0, trapDoorSize.x, trapDoorSize.y);
+        imgview.snapshot(Door.params,sprite);
         isOpen = false;
     }
 }

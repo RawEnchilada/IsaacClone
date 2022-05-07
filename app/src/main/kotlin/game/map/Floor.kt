@@ -1,89 +1,105 @@
 package game.map;
 
+import game.Gl
 import game.extension.Int2D;
-import game.pathFinding.AStar;
-import game.Gl;
 
 
 class Floor(var level: Int){
-    var levelSize:Int = 5+level;
 
-    var rooms:MutableList<Room>;
+    var levelSize:Int = 4+level;
 
-
-    init{ //TODO prevent overlap
-        //Place the special rooms separate from each other on a corner of the floor
-        val quadrants = mutableListOf(Int2D(0,0),Int2D(levelSize/2,0),Int2D(0,levelSize/2),Int2D(levelSize/2,levelSize/2));
-
-        var qri = Gl.randomInt(0, 3);
-        var quadrant = quadrants[qri];
-        val start = StartRoom(0,Gl.randomInt(quadrant.x, quadrant.x+levelSize/2),Gl.randomInt(quadrant.y, quadrant.y+levelSize/2));
-        quadrants.removeAt(qri);
-
-        qri = Gl.randomInt(0, 2);
-        quadrant = quadrants[qri];
-        val boss = EndRoom(1,Gl.randomInt(quadrant.x, quadrant.x+levelSize/2),Gl.randomInt(quadrant.y, quadrant.y+levelSize/2));
-        quadrants.removeAt(qri);
-
-        qri = Gl.randomInt(0, 1);
-        quadrant = quadrants[qri];
-        val item = ItemRoom(2,Gl.randomInt(quadrant.x, quadrant.x+levelSize/2),Gl.randomInt(quadrant.y, quadrant.y+levelSize/2));
-        quadrants.removeAt(qri);
-
-        val room1 = Room(3,Gl.randomInt(0, levelSize),Gl.randomInt(0, levelSize));
-        val room2 = Room(4,Gl.randomInt(0, levelSize),Gl.randomInt(0, levelSize));
-
-        rooms = mutableListOf( start,boss,item,room1,room2 );
-
-        val grid = Array(levelSize){Array(levelSize){Gl.randomDouble()}};
-
-        val star = AStar(grid);
-        val paths = arrayOf(star.find(start.gridPosition,boss.gridPosition),
-                star.find(start.gridPosition,item.gridPosition),
-                star.find(start.gridPosition,room1.gridPosition),
-                star.find(start.gridPosition,room2.gridPosition));
-
-        val findRoom = fun(pos: Int2D):Room?{
-            for(room in rooms){
-                if(room.gridPosition == pos)return room;
+    private val grid = Array(levelSize) {Array<Room?>(levelSize) {null} };
+    val gridAsList: MutableList<Room>
+        get() {
+            val list = mutableListOf<Room>();
+            for(row in grid){
+                for(r in row) {
+                    if(r != null)list.add(r);
+                }
             }
-            return null;
-        };
+            list.sortBy { r -> r.index }
+            return list;
+        }
 
-        val addPath = fun(path:Array<Int2D>){
-            var parent:Room = start;
-            for(i in path.indices){
-                val result = findRoom(path[i]);
-                if(result == null){
-                    var d = Direction.getDirection(parent.gridPosition-path[i]);
-                    val r = Room(rooms.size,path[i],parent,d);
-                    parent = r;
-                    rooms.add(r);
+    private val directions = mutableListOf(
+            Direction.down,
+            Direction.up,
+            Direction.left,
+            Direction.right
+    )
+
+    init{
+        var index = 0;
+        val start = StartRoom(index++,levelSize/2,levelSize/2);
+        grid[levelSize/2][levelSize/2] = start;
+
+        val todo = mutableListOf<Room>(start);
+        val toplace = mutableListOf<Room>();
+
+        for (i in 0 until levelSize-1){
+            toplace.add(Room(index++));
+        }
+        toplace.add(ItemRoom(index++));
+        toplace.add(EndRoom(index));
+
+        /*
+        * place all the rooms in toplace in random directions starting from the StartRoom
+        * when there is no room left to place, run through the rest and set their neighbors too
+        */
+
+        while (toplace.size > 0 || todo.size > 0){
+            directions.shuffle();
+            val current = todo.removeFirst();
+            val neighbours = current.neighbors.count { r -> r != null }
+            var denom = 4.0-neighbours;
+            for (d in directions){
+                val pos = current.gridPosition+Direction.getVector(d);
+                if(pos.x < 0 || pos.x >= levelSize || pos.y < 0 || pos.y >= levelSize)continue;
+                var room = getRoom(pos);
+
+                //if the space in this direction is empty
+                if(room == null  && Gl.randomDouble() < (1.0/denom) && toplace.size > 0){
+                    room = toplace.removeFirst();
+                    room.gridPosition = pos;
+                    grid[pos.x][pos.y] = room;
+                    todo.add(room);
                 }
-                else{
-                    parent = result;
+
+                if(room != null){
+                    current.neighbors[d.value] = room;
+                    room.neighbors[Direction.flip(d).value] = current;
                 }
+
+                denom--;
             }
         }
 
-        for(p in paths){
-            addPath(p);
+        for(row in grid){
+            for(r in row) {
+                r?.Finalize(this);
+            }
         }
-
 
     }
 
     fun getRoom(gridPos:Int2D):Room?{
-        for(r in rooms){
-            if(r.gridPosition == gridPos)return r;
-        }
-        return null;
+        return grid[gridPos.x][gridPos.y];
     }
 
-    fun Finalize(){
-        for(r in rooms){
-            r.Finalize(this);
+    fun print(){
+        for(row in grid){
+            for( r in row){
+                if(r == null)continue;
+                println("${r.toString()} - gridpos:${r.gridPosition}, pos: ${r.position}");
+                var i = -1;
+                for (n in r.neighbors){
+                    i++;
+                    if (n == null)continue
+                    println("\t$i. ${n.toString()}");
+                }
+            }
         }
     }
+
 
 }

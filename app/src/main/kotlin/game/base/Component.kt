@@ -9,8 +9,8 @@ abstract class Component(pos:Double2D){
         private var disposing = mutableListOf<Component>();
         fun updateAll(elapsed_ms:Long){
             for(i in (components.size-1 downTo 0)){
-                if(components[i].active)
-                    components[i].update(elapsed_ms);
+                val c = components[i];
+                if(c.active)c.update(elapsed_ms);
             }
         }
         fun dispose(){

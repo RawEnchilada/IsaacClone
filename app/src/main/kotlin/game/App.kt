@@ -59,7 +59,7 @@ class Main : Application(){
 
                 Component.dispose();
                 Drawable.dispose();
-                Collider.Dispose();
+                Collider.dispose();
                 if(!Gl.running){
                     end?.invoke();
                 }

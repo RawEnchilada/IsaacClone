@@ -5,20 +5,22 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import game.extension.Int2D;
 import game.extension.Double2D;
+import javafx.scene.image.Image
 import javafx.scene.text.Font
+import java.io.FileInputStream
 
 abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
     
     companion object {
         var drawables = mutableListOf<Drawable>();
-        val debugPoints = mutableListOf<Double2D>(); //TODO remove
         private var disposing = mutableListOf<Drawable>();
-        val screenCenter = Gl.wSize/2;
-        
-        fun drawAll(gc:GraphicsContext, elapsed_ms:Long){
+        private val roomBackground = Image(FileInputStream("src/main/resources/room.png"));
+
+        fun drawAll(gc:GraphicsContext, elapsed_ms:Long){//TODO possible optimization is to store components in fixed size arrays, and set active should add and remove them like in colliders.
             gc.clearRect(0.0,0.0,Gl.wSize.x,Gl.wSize.y);
+            gc.drawImage(roomBackground, 0.0, 0.0, Gl.wSize.x, Gl.wSize.y);
             for(d in drawables){
-                d.draw(gc);
+                if(d.active)d.draw(gc);
             }    
             if(Gl.show_colliders){
                 for(c in Collider.colliders){
@@ -32,11 +34,6 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
                 gc.fill = Color.BLACK;
                 gc.fillText("${1000 / elapsed_ms} fps", 10.0, 10.0);
             }
-            for (p in debugPoints){
-                gc.fill = Color.PURPLE;
-                gc.fillOval(p.x-5.0,p.y-5.0,10.0,10.0);
-            }
-            debugPoints.clear();
         }
 
 
