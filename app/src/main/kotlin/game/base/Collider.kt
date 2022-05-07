@@ -151,8 +151,6 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
 
 
         val vec = (normal * rayDir.absolute() * (1-nf.x));
-        //Drawable.debugPoints.add(Drawable.getDrawPosition(lastCenter+vec*2));
-        Drawable.debugPoints.add(Drawable.getDrawPosition(lastCenter+near));
         var f1 = other.weight/(weight+other.weight);
         var f2 = weight/(weight+other.weight);
         if(other.static){

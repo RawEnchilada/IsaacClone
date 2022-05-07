@@ -22,10 +22,10 @@ open class Projectile(parent: Actor, var damage: Int, position:Double2D, var rad
     var speedMult = speed;
 
     init{
-        collider.onLayer = parent.collider.onLayer;
+        collider.onLayer = 0b000001;
         collider.useLayer = parent.collider.useLayer;
         collider.rigid = false;
-        onEnterEvent += fun(o):Boolean{return o.parent is Enemy;}
+        //onEnterEvent += fun(o):Boolean{return o.parent is Enemy;}
 
         this.collider.onEnter = fun(other: Collider){
             if(other.parent is Actor)(other.parent as Actor).gotHit(this);

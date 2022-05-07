@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import game.extension.Int2D;
 import game.extension.Double2D;
+import javafx.scene.text.Font
 
 abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
     
@@ -27,6 +28,7 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
                 }
             }
             if(Gl.show_fps){
+                gc.font = Font.getDefault();
                 gc.fill = Color.BLACK;
                 gc.fillText("${1000 / elapsed_ms} fps", 10.0, 10.0);
             }

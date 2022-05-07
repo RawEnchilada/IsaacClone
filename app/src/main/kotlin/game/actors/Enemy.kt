@@ -51,7 +51,7 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
 
     override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(anim.Sprite, pos.x, pos.y, size.x, size.y);
+        gc.drawImage(anim.sprite, pos.x, pos.y, size.x, size.y);
     }
 
     override fun die(){

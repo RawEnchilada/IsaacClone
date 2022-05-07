@@ -17,26 +17,37 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         var player: Player? = null;
     }
 
-    private val anim:AnimationPlayer = AnimationPlayer(
-            "src/main/resources/player.png",
+    private val head:AnimationPlayer = AnimationPlayer(
+            "src/main/resources/playerHead.png",
             listOf(
-                    AnimationData("idle",1,true,3),
-                    AnimationData("up",4,true,3),
-                    AnimationData("down",4,true,3),
-                    AnimationData("left",4,true,3),
-                    AnimationData("right",4,true,3),
-                    AnimationData("shootUp",2,false,2),
-                    AnimationData("shootDown",2,false,2),
-                    AnimationData("shootLeft",2,false,2),
-                    AnimationData("shootRight",2,false,2),
+                    AnimationData("down",1,true,3),
+                    AnimationData("up",1,true,3),
+                    AnimationData("left",1,true,3),
+                    AnimationData("right",1,true,3),
+                    AnimationData("shootDown",1,false,2),
+                    AnimationData("shootUp",1,false,2),
+                    AnimationData("shootLeft",1,false,2),
+                    AnimationData("shootRight",1,false,2),
             )
     );
+    private val body:AnimationPlayer = AnimationPlayer(
+            "src/main/resources/playerBody.png",
+            listOf(
+                    AnimationData("idle",1,true,3),
+                    AnimationData("down",4,true,3),
+                    AnimationData("up",4,true,3),
+                    AnimationData("left",4,true,3),
+                    AnimationData("right",4,true,3)
+            )
+    );
+
     var currentRoom:Room = starting;
     val items:MutableList<Item> = mutableListOf();
 
     private var hitGate:Long = 0;
     init{
-        anim.fps = 8;
+        body.fps = 8;
+        head.fps = 8;
         if(player == null) player = this;
         collider.rigid = true;
         collider.onLayer = 0b0100;
@@ -66,14 +77,29 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
 
         position += delta*speed*elapsed_s;
 
-        if(delta == Double2D())anim.Animate("idle");
+        if(delta == Double2D()){
+            head.Animate("down");
+            body.Animate("idle");
+        }
         else if(delta.x.absoluteValue > delta.y.absoluteValue){
-            if(delta.x > 0)anim.Animate("right");
-            else anim.Animate("left");
+            if(delta.x > 0){
+                head.Animate("right");
+                body.Animate("right");
+            }
+            else {
+                head.Animate("left");
+                body.Animate("left");
+            }
         }
         else{
-            if(delta.y > 0)anim.Animate("down");
-            else anim.Animate("up");
+            if(delta.y > 0){
+                head.Animate("down");
+                body.Animate("down");
+            }
+            else {
+                head.Animate("up");
+                body.Animate("up");
+            }
         }
 
 
@@ -84,12 +110,12 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
             val vector = InputListener.mousePosition-getDrawPosition(center);
             shoot(vector);
             if(vector.x.absoluteValue > vector.y.absoluteValue){
-                if(vector.x > 0)anim.Animate("shootRight");
-                else anim.Animate("shootLeft");
+                if(vector.x > 0)head.Animate("shootRight");
+                else head.Animate("shootLeft");
             }
             else{
-                if(vector.y > 0)anim.Animate("shootDown");
-                else anim.Animate("shootUp");
+                if(vector.y > 0)head.Animate("shootDown");
+                else head.Animate("shootUp");
             }
         };
 
@@ -101,12 +127,14 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         collider.position = position;
         if(hitGate > 0)hitGate -= elapsed_ms;
 
-        anim.Update(elapsed_ms);
+        head.Update(elapsed_ms);
+        body.Update(elapsed_ms);
     }
 
     override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(anim.Sprite, pos.x, pos.y, size.x, size.y);
+        gc.drawImage(head.sprite, pos.x, pos.y, size.x, size.y/2);
+        gc.drawImage(body.sprite, pos.x, pos.y+size.y/2, size.x, size.y/2);
     }
 
     fun moveToRoom(target:Room,d: Direction){

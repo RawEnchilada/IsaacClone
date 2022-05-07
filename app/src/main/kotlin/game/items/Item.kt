@@ -24,7 +24,7 @@ class Item(val path:String,
                     Item("src/main/resources/items/bubble.png", onShoot = fun(bullet){bullet.ttl = (bullet.ttl*0.75).toLong();bullet.updateEvent += fun(_){bullet.radius += 1;}}),
                     Item("src/main/resources/items/orangejuice.png", onShoot = fun(b){b.fillColor = Color.ORANGE;b.damage += 1;}),
                     Item("src/main/resources/items/ghost.png",onShoot = fun(b){b.onEnterEvent += fun(_):Boolean{return false;}}),
-                    Item("src/main/resources/items/shield.png",onShoot = fun(b){b.onEnterEvent += fun(other):Boolean{if(other.parent is Projectile){other.Dispose();b.dispose();};return true;}})
+                    Item("src/main/resources/items/shield.png",onShoot = fun(b){b.collider.useLayer = b.collider.useLayer or 0b000001})
             )
         }
     }

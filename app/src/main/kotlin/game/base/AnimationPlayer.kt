@@ -2,13 +2,13 @@ package game
 
 import game.extension.Double2D
 import game.extension.Int2D
-import javafx.animation.Animation
 import javafx.geometry.Rectangle2D
 import javafx.scene.SnapshotParameters
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
+import javafx.scene.shape.Rectangle
 import java.io.FileInputStream
 
 class AnimationPlayer(
@@ -22,11 +22,11 @@ class AnimationPlayer(
         }
     }
 
-    val sheet:Image;
-    private var sprite: WritableImage;
-    val Sprite: WritableImage get(){
+    private var image: ImageView;
+    private val writeableImage:WritableImage;
+    val sprite: WritableImage get(){
         writeFrame();
-        return sprite;
+        return writeableImage;
     }
 
     var fps:Int = 10;
@@ -62,16 +62,16 @@ class AnimationPlayer(
     init{
         if(anims.size == 0)throw Exception("No animations provided.");
 
-        sheet = Image(FileInputStream(sheetSrc));
+        val sheet = Image(FileInputStream(sheetSrc));
         var biggest = 0;
         for (anim in anims){if(anim.frameCount > biggest)biggest = anim.frameCount;}
         frameSize = Double2D(sheet.width/biggest,sheet.height/anims.size);
-        sprite = WritableImage(frameSize.x.toInt(),frameSize.y.toInt());
         grid = Int2D(sheet.width/frameSize.x,sheet.height/frameSize.y);
+        writeableImage = WritableImage(frameSize.x.toInt(), frameSize.y.toInt());
+        image = ImageView(sheet);
         var i = 0;
         for(anim in anims){
             animations.add(anim);
-            anim.image = ImageView(sheet);
             anim.index = i;
             i++;
         }
@@ -79,8 +79,8 @@ class AnimationPlayer(
         lastAnimation = animations.first();
     }
     private fun writeFrame(){
-        animating.image!!.viewport = getViewPort();
-        animating.image!!.snapshot(params,sprite);
+        image.viewport = getViewPort();
+        image.snapshot(params,writeableImage);
     }
     private fun getViewPort():Rectangle2D{
         val x = frameSize.x*(cf % grid.x);
@@ -116,6 +116,5 @@ class AnimationData(
     val repeat:Boolean,
     val priority:Int = 10
 ){
-    var image: ImageView? = null;
     var index: Int = 0;
 }
