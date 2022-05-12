@@ -55,7 +55,7 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
     }
 
     override fun die(){
-        if(Gl.randomDouble() < 1.0-(Player.player!!.health / 4.0)){
+        if(Gl.randomDouble() < 1.0-(Player.player!!.health / Player.player!!.maxHealth+1.0)){
             HeartPickup(position);
         }
         Gl.score += 100;

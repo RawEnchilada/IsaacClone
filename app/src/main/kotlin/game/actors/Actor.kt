@@ -24,6 +24,8 @@ abstract class Actor(pos:Double2D,size:Double2D,zindex:Int) : Drawable(pos,size,
                 _health = value;     
                 if(_health <= 0) die();
             }
+    
+    public var maxHealth = 4;
 
 
     open fun ReduceHealth(amount:Int){

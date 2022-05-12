@@ -55,6 +55,7 @@ object Gl{
     fun restart(){
         score = 0;
         seed = (0..(Int.MAX_VALUE-50000)).random();
+        Player.player = null;
         r = Random(seed);
         println("seed: $seed");
         level = 0;

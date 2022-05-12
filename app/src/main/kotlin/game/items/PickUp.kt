@@ -61,6 +61,7 @@ class HeartPickup(pos:Double2D) : PickUp(pos,Double2D(32.0,32.0)){
     }
 
     override fun onPickup(p: Player) {
+        if(p.health >= p.maxHealth)return;
         Gl.score += 25;
         p.health++;
     }

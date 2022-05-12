@@ -10,7 +10,7 @@ import game.extension.Event;
 
 open class Projectile(parent: Actor, var damage: Int, position:Double2D, var radius: Double, force:Double2D, speed:Double = 1.0): Drawable(position,20){
 
-    private var force:Double2D = force.normalized();
+    var force:Double2D = force.normalized();
     var collider: Rectangle = Rectangle(this, position, Double2D(radius-1,radius-1));
     var fillColor: Color = Color.WHITE;
     var strokeColor: Color = Color.BLACK;

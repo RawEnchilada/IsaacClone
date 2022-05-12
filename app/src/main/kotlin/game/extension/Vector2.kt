@@ -220,4 +220,10 @@ class Double2D(x:Double,y:Double){
         return Double2D(x.absoluteValue,y.absoluteValue);
     }
 
+    fun rotate(angle:Double):Double2D{
+        val cos = Math.cos(angle);
+        val sin = Math.sin(angle);
+        return Double2D(x*cos-y*sin,x*sin+y*cos);
+    }
+
 }

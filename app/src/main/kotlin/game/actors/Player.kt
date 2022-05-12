@@ -49,6 +49,8 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
 
     private var hitGate:Long = 0;
     init{
+        speedMultiplier = 0.85;
+        fireRate = 0.95;
         body.fps = 8;
         head.fps = 8;
         if(player == null) player = this;
