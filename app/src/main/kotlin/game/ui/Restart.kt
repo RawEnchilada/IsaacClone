@@ -31,7 +31,7 @@ class Restart(pos: Double2D = Double2D(), size: Double2D = Gl.wSize) : UIElement
     }
 
     override fun draw(gc: GraphicsContext) {
-        gc.fill = Color.BLACK;
+        gc.fill = Color.WHITE;
         gc.font = Font.font(25.0);
         gc.fillText("Score: $score",50.0,250.0);
     }

@@ -75,6 +75,7 @@ class TowerEnemy(room:Room) : Enemy(room){
     override val anim: AnimationPlayer = AnimationPlayer(
         "src/main/resources/enemies/tower.png",
         listOf(
+			AnimationData("idle",2,false,2),
             AnimationData("shootUp",2,false,2),
             AnimationData("shootDown",2,false,2),
             AnimationData("shootLeft",2,false,2),
@@ -92,8 +93,8 @@ class TankEnemy(room:Room) : Enemy(room){
     override val anim: AnimationPlayer = AnimationPlayer(
             "src/main/resources/enemies/tank.png",
             listOf(
-                    AnimationData("up",4,true,3),
                     AnimationData("down",4,true,3),
+                    AnimationData("up",4,true,3),
                     AnimationData("left",4,true,3),
                     AnimationData("right",4,true,3)
             )
@@ -113,8 +114,8 @@ class SpasticEnemy(room:Room) : Enemy(room,Double2D(64.0,64.0)){
     override val anim: AnimationPlayer = AnimationPlayer(
             "src/main/resources/enemies/spastic.png",
             listOf(
-                    AnimationData("up",4,true,3),
                     AnimationData("down",4,true,3),
+                    AnimationData("up",4,true,3),
                     AnimationData("left",4,true,3),
                     AnimationData("right",4,true,3)
             )

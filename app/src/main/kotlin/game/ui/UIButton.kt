@@ -47,7 +47,7 @@ class UIButton(
             gc.fillText(text, position.x+5, position.y);
         }
         else {
-            gc.fill = Color.BLACK;
+            gc.fill = Color.WHITE;
             gc.font = Font.font(size.y);
             gc.fillText(text, position.x, position.y);
         }

@@ -20,7 +20,7 @@ class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2,
         val trapDoorSize = Double2D(trapDoor.width/2,trapDoor.height);
     }
 
-    val sprite: WritableImage = WritableImage(Door.doorSize.x.toInt(), Door.doorSize.y.toInt());
+    val sprite: WritableImage = WritableImage(trapDoorSize.x.toInt(), trapDoorSize.y.toInt());
     private val imgview: ImageView;
     var collider: Rectangle = Rectangle(this, position, Double2D(trapDoorSize.x,trapDoorSize.y));
     var isOpen = false;
@@ -45,7 +45,7 @@ class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2,
 
     override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(sprite, pos.x, pos.y, size.x, size.y);
+        gc.drawImage(sprite, pos.x-((size.x*1.5-size.x)/2.0), pos.y-((size.y*1.5-size.y)/2.0), size.x*1.5, size.y*1.5);
     }
 
     fun open(){
