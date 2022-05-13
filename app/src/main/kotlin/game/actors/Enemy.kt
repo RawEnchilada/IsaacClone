@@ -9,6 +9,7 @@ import game.map.Door;
 import game.map.Room;
 import game.Gl;
 import game.items.HeartPickup;
+import kotlin.math.absoluteValue
 
 
 abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Double2D(),size,100){
@@ -55,7 +56,7 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
     }
 
     override fun die(){
-        if(Gl.randomDouble() < 1.0-(Player.player!!.health / Player.player!!.maxHealth+1.0)){
+        if(Gl.randomDouble() < 1.0-(Player.player!!.health / (Player.player!!.maxHealth+2.0))){
             HeartPickup(position);
         }
         Gl.score += 100;
@@ -101,16 +102,35 @@ class TankEnemy(room:Room) : Enemy(room){
     );
     init{
         speedMultiplier = 0.2;
+        health = 5;
     }
     override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
-        position += (Player.player!!.position - position).normalized()*speed*elapsed_s;
+        val delta = (Player.player!!.position - position).normalized();
+        if(delta.x.absoluteValue > delta.y.absoluteValue){
+            if(delta.x > 0){
+                anim.Animate("right");
+            }
+            else {
+                anim.Animate("left");
+            }
+        }
+        else{
+            if(delta.y < 0){
+                anim.Animate("up");
+            }
+            else {
+                anim.Animate("down");
+            }
+        }
+        position += delta*speed*elapsed_s;
         collider.position = position;
         anim.Update(elapsed_ms);
     }
 }
 
 class SpasticEnemy(room:Room) : Enemy(room,Double2D(64.0,64.0)){
+    var targetPos = position;
     override val anim: AnimationPlayer = AnimationPlayer(
             "src/main/resources/enemies/spastic.png",
             listOf(
@@ -122,13 +142,42 @@ class SpasticEnemy(room:Room) : Enemy(room,Double2D(64.0,64.0)){
     );
     init{
         speedMultiplier = 1.0;
+        health = 2;
     }
     override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
-        val x = Math.random()*2-1;
-        val y = Math.random()*2-1;
-        position += (Double2D(x,y)*speed*elapsed_s);
+
+        if(targetPos.distance(position) < 2.0){
+            targetPos = Player.player!!.position;
+        }
+        var delta = (targetPos - position).normalized();
+
+        if(delta.x.absoluteValue > delta.y.absoluteValue){
+            delta.y = 0.0;
+            if(delta.x > 0){
+                anim.Animate("right");
+                delta.x = 1.0;
+            }
+            else {
+                anim.Animate("left");
+                delta.x = -1.0;
+            }
+        }
+        else{
+            delta.x = 0.0;
+            if(delta.y < 0){
+                anim.Animate("up");
+                delta.y = -1.0;
+            }
+            else {
+                anim.Animate("down");
+                delta.y = 1.0;
+            }
+        }
+
+        position += delta*speed*elapsed_s;
         collider.position = position;
+
         anim.Update(elapsed_ms);
     }
 }

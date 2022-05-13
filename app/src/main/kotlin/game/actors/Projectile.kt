@@ -52,6 +52,7 @@ open class Projectile(parent: Actor, var damage: Int, position:Double2D, var rad
         gc.stroke = strokeColor;
         gc.fill = fillColor;
         gc.fillOval(pos.x, pos.y, radius, radius);
+        gc.strokeOval(pos.x, pos.y, radius, radius);
     }
 
     override fun dispose(){

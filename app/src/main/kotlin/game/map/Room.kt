@@ -225,7 +225,7 @@ class StartRoom(index:Int,v:Int2D) : Room(index,v) {
 
 
 class EndRoom(index:Int) : Room(index) {
-    override val minimapColor = Color.color(0.6, 0.1, 0.1, 0.7);
+    override val minimapColor = Color.color(0.1, 0.6, 0.1, 0.7);
     override val minimapColorCurrent = Color.color(0.8, 0.2, 0.2, 0.7);
 
 
@@ -251,13 +251,3 @@ class EndRoom(index:Int) : Room(index) {
     }
 }
 
-
-class ItemRoom(index:Int) : Room(index) {
-    override val minimapColor = Color.color(0.6, 0.6, 0.1, 0.7);
-    override val minimapColorCurrent = Color.color(0.8, 0.8, 0.2, 0.7);
-
-    override fun PrepareRoom(floor:Floor){
-        ItemPickup(center,Item.getRandomItem());
-        isActive(false);
-    }
-}

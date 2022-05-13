@@ -39,7 +39,6 @@ class Floor(var level: Int){
         for (i in 0 until levelSize-1){
             toplace.add(Room(index++));
         }
-        toplace.add(ItemRoom(index++));
         toplace.add(EndRoom(index));
 
         /*

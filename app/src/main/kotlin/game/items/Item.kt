@@ -27,11 +27,11 @@ class Item(val path:String,
                     Item("src/main/resources/items/ghost.png",onShoot = fun(b){b.onEnterEvent += fun(_):Boolean{return false;}}),
                     Item("src/main/resources/items/shield.png",onShoot = fun(b){b.collider.useLayer = b.collider.useLayer or 0b000001}),
                     Item("src/main/resources/items/meat.png",onPickup = fun(p){p.maxHealth+=2;}),
-                    Item("src/main/resources/items/moon.png",onShoot = fun(b){b.updateEvent += fun(_){b.force = b.force.rotate(0.03);}}),
+                    Item("src/main/resources/items/moon.png",onShoot = fun(b){b.fillColor = Color.CYAN;val delta = b.force.normalized();b.updateEvent += fun(_){b.force = delta+b.force.rotate(0.03);}}),
                     Item("src/main/resources/items/mushroom.png",onPickup = fun(p){p.size *= 0.9;p.collider.size *= 0.9;}, onShoot = fun(b){b.force += Double2D(Math.random()-0.5,Math.random()-0.5);})
                     
 
-            )
+            );
         }
     }
 }
