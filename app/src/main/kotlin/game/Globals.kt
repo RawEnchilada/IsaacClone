@@ -13,6 +13,9 @@ import javafx.scene.input.KeyEvent
 import kotlin.random.Random
 import game.map.*;
 import game.ui.Menu
+import game.ui.Restart
+import game.items.HeartPickup
+import game.items.ItemPickup
 
 object Gl{
 
@@ -45,6 +48,10 @@ object Gl{
                 KeyCode.F1 -> show_colliders = !show_colliders
                 KeyCode.F2 -> ghost_mode = !ghost_mode
                 KeyCode.F3 -> show_fps = !show_fps
+                KeyCode.F4 -> Player.player?.godMode = true;
+                KeyCode.F5 -> HeartPickup(InputListener.mousePosition+Drawable.cameraPosition);
+                KeyCode.F6 -> ItemPickup(InputListener.mousePosition+Drawable.cameraPosition,Item.getRandomItem());
+                KeyCode.ESCAPE -> Restart();
                 else -> {}
             };
         });

@@ -27,10 +27,10 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
                     AnimationData("up",1,true,3),
                     AnimationData("left",1,true,3),
                     AnimationData("right",1,true,3),
-                    AnimationData("shootDown",1,false,2),
-                    AnimationData("shootUp",1,false,2),
-                    AnimationData("shootLeft",1,false,2),
-                    AnimationData("shootRight",1,false,2),
+                    AnimationData("shootDown",2,false,2),
+                    AnimationData("shootUp",2,false,2),
+                    AnimationData("shootLeft",2,false,2),
+                    AnimationData("shootRight",2,false,2),
             )
     );
     private val body:AnimationPlayer = AnimationPlayer(
@@ -122,14 +122,15 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
 
         if(InputListener.isMouseDown(MouseButton.PRIMARY)){
             val vector = InputListener.mousePosition-getDrawPosition(center);
-            shoot(vector);
-            if(vector.x.absoluteValue > vector.y.absoluteValue){
-                if(vector.x > 0)head.Animate("shootRight");
-                else head.Animate("shootLeft");
-            }
-            else{
-                if(vector.y > 0)head.Animate("shootDown");
-                else head.Animate("shootUp");
+            if(shoot(vector)){
+                if(vector.x.absoluteValue > vector.y.absoluteValue){
+                    if(vector.x > 0)head.Animate("shootRight");
+                    else head.Animate("shootLeft");
+                }
+                else{
+                    if(vector.y > 0)head.Animate("shootDown");
+                    else head.Animate("shootUp");
+                }
             }
         };
 
@@ -172,18 +173,19 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
         }
     }
 
-    override fun shoot(vector:Double2D){
+    override fun shoot(vector:Double2D):Boolean{
         if(Gl.elapsedTime-lastShot > 1000/fireRate){
             lastShot = Gl.elapsedTime;
             val p = Projectile(this,1, center, 15.0, vector.normalized(),bulletSpeed);
             for(item in items){
                 item.onShoot(p);
             }
+            return true;
         }
+        return false;
     }
 
     override fun die() {
-        Gl.disposeAll();
         Restart();
     }
 

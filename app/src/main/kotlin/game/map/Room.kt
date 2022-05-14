@@ -133,26 +133,18 @@ open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
         PrepareRoom(floor);
     }
 
-    open protected fun PrepareRoom(floor:Floor){
-        enemies.addAll(Enemy.createEnemies(floor.level, this));
-        isActive(false);
-    }
-
-    override fun update(elapsed_ms:Long){
-        if(enemies.size <= 0){
-            if(!cleared)Cleared();
-            for(d in doors){
-                if(!d.isOpen)
-                    d.open();
-            }
-        }
-    }
-
     override fun draw(gc:GraphicsContext){
     }
 
-    open fun Cleared(){
-        cleared = true;
+    
+    fun isActive(b:Boolean){
+        active = b;
+        for(c in colliders){
+            c.Active = b;
+        }
+        for(d in doors){
+            d.collider.Active = b;
+        }
     }
 
     fun focusRoom(){
@@ -173,14 +165,24 @@ open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
         }
     }
 
-    fun isActive(b:Boolean){
-        active = b;
-        for(c in colliders){
-            c.Active = b;
+    open protected fun PrepareRoom(floor:Floor){
+        enemies.addAll(Enemy.createEnemies(floor.level, this));
+        isActive(false);
+    }
+
+    override fun update(elapsed_ms:Long){
+        if(enemies.size <= 0){
+            if(!cleared)Cleared();
+            for(d in doors){
+                if(!d.isOpen)
+                    d.open();
+            }
         }
-        for(d in doors){
-            d.collider.Active = b;
-        }
+    }
+
+    
+    open fun Cleared(){
+        cleared = true;
     }
 
     open fun onEnter(){
@@ -225,12 +227,13 @@ class StartRoom(index:Int,v:Int2D) : Room(index,v) {
 
 
 class EndRoom(index:Int) : Room(index) {
-    override val minimapColor = Color.color(0.1, 0.6, 0.1, 0.7);
-    override val minimapColorCurrent = Color.color(0.8, 0.2, 0.2, 0.7);
+    override val minimapColor = Color.color(0.4, 0.6, 0.3, 0.7);
+    override val minimapColorCurrent = Color.color(0.6, 0.8, 0.5, 0.7);
 
 
     private lateinit var trapDoor:TrapDoor;
     override fun PrepareRoom(floor:Floor){
+        enemies.addAll(Enemy.createEnemies(floor.level+1, this));
         trapDoor = TrapDoor(this);
         isActive(false);
     }

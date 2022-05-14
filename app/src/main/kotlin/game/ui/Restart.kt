@@ -13,6 +13,7 @@ class Restart(pos: Double2D = Double2D(), size: Double2D = Gl.wSize) : UIElement
     val score = Gl.score;
 
     init {
+        Gl.disposeAll();
         Cursor(true);
         buttons = listOf(
                 UIButton(Double2D(50.0,380.0), Double2D(125.0,60.0),"Restart",fun(){

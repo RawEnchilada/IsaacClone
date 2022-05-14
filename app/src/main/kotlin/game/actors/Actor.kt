@@ -18,11 +18,14 @@ abstract class Actor(pos:Double2D,size:Double2D,zindex:Int) : Drawable(pos,size,
     var bulletSpeed = 5.0;
     var lastShot = Gl.elapsedTime;
 
+    var godMode = false;
     private var _health = 3;
     var health get() = _health;
             set(value){
-                _health = value;     
-                if(_health <= 0) die();
+                if(!godMode){
+                    _health = value;     
+                    if(_health <= 0) die();
+                }
             }
     
     public var maxHealth = 4;
@@ -44,11 +47,13 @@ abstract class Actor(pos:Double2D,size:Double2D,zindex:Int) : Drawable(pos,size,
         dispose();
     }
 
-    open fun shoot(vector:Double2D){
+    open fun shoot(vector:Double2D):Boolean{
         if(Gl.elapsedTime-lastShot > 1000/fireRate){
             lastShot = Gl.elapsedTime;
             Projectile(this,1, center, 15.0, vector,bulletSpeed);
+            return true;
         }
+        return false;
     }
 
     override fun dispose(){

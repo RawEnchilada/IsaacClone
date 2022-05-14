@@ -68,7 +68,7 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
         colliders.add(this);
     }
 
-
+    
     private val moved:Boolean get() = lastPosition != position && !static;
     protected var lastPosition = Double2D();
     var position:Double2D get() = pos;

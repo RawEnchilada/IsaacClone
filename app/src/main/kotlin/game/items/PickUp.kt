@@ -20,7 +20,6 @@ abstract class PickUp(pos: Double2D, size: Double2D) : Drawable(pos,size,19) {
         collider.onEnter = fun(other: Collider){
             if(other.parent is Player){
                 onPickup(other.parent as Player);
-                dispose();
             };
         }
     }
@@ -51,6 +50,7 @@ class HeartPickup(pos:Double2D) : PickUp(pos,Double2D(32.0,32.0)){
     init{
         val x = Gl.randomDouble(-2.0,2.0);
         val y = Gl.randomDouble(-2.0,2.0);
+        collider.rigid = true;
         force = Double2D(x,y);
     }
 
@@ -64,6 +64,7 @@ class HeartPickup(pos:Double2D) : PickUp(pos,Double2D(32.0,32.0)){
         if(p.health >= p.maxHealth)return;
         Gl.score += 25;
         p.health++;
+        dispose();
     }
 }
 
@@ -78,5 +79,6 @@ class ItemPickup(pos:Double2D, private val item: Item): PickUp(pos,Double2D(32.0
         Gl.score += 50;
         p.items.add(item);
         item.onPickup(p);
+        dispose();
     }
 }
