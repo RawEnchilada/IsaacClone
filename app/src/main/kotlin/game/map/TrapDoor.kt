@@ -33,7 +33,7 @@ class TrapDoor(parent: Room) : Drawable(parent.center-Double2D(trapDoorSize.x/2,
         collider.onEnter = fun(other: Collider){
             if(isOpen && other.parent is Player){
                 Gl.nextFloor();
-                collider.Active = false;
+                collider.active = false;
                 dispose();
             }
         }

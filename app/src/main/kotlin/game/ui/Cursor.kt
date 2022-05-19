@@ -17,6 +17,7 @@ class Cursor(private val useDefault:Boolean) : UIElement(Double2D(100.0,100.0),D
         collider.onLayer = 0b00001;
         collider.useLayer = 0b00001;
         collider.rigid = false;
+        collider.static = true;
         if(!useDefault)
             Gl.scene.cursor = Cursor.NONE;
         else

@@ -21,6 +21,7 @@ abstract class Component(pos:Double2D){
 
     var position = pos;
     var active = true;
+    var isDisposed = false;
 
     abstract fun update(elapsed_ms:Long);
 
@@ -30,5 +31,6 @@ abstract class Component(pos:Double2D){
 
     open fun dispose(){
         disposing.add(this);
+        isDisposed = true;
     }
 }

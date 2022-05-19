@@ -56,7 +56,9 @@ open class Projectile(parent: Actor, var damage: Int, position:Double2D, var rad
     }
 
     override fun dispose(){
-        collider.Dispose();
-        super.dispose();
+        if(!isDisposed) {
+            collider.Dispose();
+            super.dispose();
+        }
     }
 }

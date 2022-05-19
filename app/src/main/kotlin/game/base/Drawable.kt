@@ -24,7 +24,7 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
             }    
             if(Gl.show_colliders){
                 for(c in Collider.colliders){
-                    if(c.Active)gc.stroke = Color.GREEN;
+                    if(c.active)gc.stroke = Color.GREEN;
                     else gc.stroke = Color.RED;
                     c.drawOutline(gc);
                 }

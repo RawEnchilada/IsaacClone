@@ -11,8 +11,6 @@ import game.items.ItemPickup
 import game.extension.Int2D;
 import game.extension.Double2D;
 import javafx.scene.canvas.GraphicsContext;
-import java.io.FileInputStream;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import kotlin.concurrent.thread
 
@@ -140,10 +138,10 @@ open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
     fun isActive(b:Boolean){
         active = b;
         for(c in colliders){
-            c.Active = b;
+            c.active = b;
         }
         for(d in doors){
-            d.collider.Active = b;
+            d.collider.active = b;
         }
     }
 
@@ -160,7 +158,7 @@ open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
             Thread.sleep(500);
             for(e in enemies){
                 e.active = true;
-                e.collider.Active = true;
+                e.collider.active = true;
             }
         }
     }

@@ -186,12 +186,17 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
     }
 
     override fun die() {
+        dispose();
+        Gl.disposeAll();
         Restart();
     }
 
     override fun dispose(){
-        super.dispose();
+        if(!isDisposed) {
+            active = false;
+            collider.active = false;
+            super.dispose();
+        }
     }
 
-    
 }

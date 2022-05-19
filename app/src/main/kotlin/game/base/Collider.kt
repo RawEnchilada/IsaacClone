@@ -87,17 +87,17 @@ abstract class Collider(var parent: Component, private var pos: Double2D){
     var static = false;
 
     //is the collider enabled
-    private var active = true;
-    var Active:Boolean get() = active;
+    private var _active = true;
+    var active:Boolean get() = _active;
                 set(value) {
-                    if(value != active){
+                    if(value != _active){
                         if(value){
                             colliders.add(this);
                         }
                         else{
                             colliders.remove(this);
                         }
-                        active = value;
+                        _active = value;
                     }
                 }
 

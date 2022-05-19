@@ -48,7 +48,7 @@ object Gl{
                 KeyCode.F1 -> show_colliders = !show_colliders
                 KeyCode.F2 -> ghost_mode = !ghost_mode
                 KeyCode.F3 -> show_fps = !show_fps
-                KeyCode.F4 -> Player.player?.godMode = true;
+                KeyCode.F4 -> Player.player?.godMode = Player.player?.let { !it.godMode } ?: false;
                 KeyCode.F5 -> HeartPickup(InputListener.mousePosition+Drawable.cameraPosition);
                 KeyCode.F6 -> ItemPickup(InputListener.mousePosition+Drawable.cameraPosition,Item.getRandomItem());
                 KeyCode.ESCAPE -> Restart();

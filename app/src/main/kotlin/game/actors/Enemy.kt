@@ -38,7 +38,7 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
         collider.onLayer = 0b0010;
         collider.useLayer = 0b1100;
         collider.static = false;
-        collider.Active = false;
+        collider.active = false;
         collider.position = position;
         active = false;
     }
@@ -64,8 +64,10 @@ abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Dou
     }
 
     override fun dispose(){
-        currentRoom.enemies.remove(this);
-        super.dispose();
+        if(!isDisposed) {
+            currentRoom.enemies.remove(this);
+            super.dispose();
+        }
     }
 
     
@@ -76,11 +78,8 @@ class TowerEnemy(room:Room) : Enemy(room){
     override val anim: AnimationPlayer = AnimationPlayer(
         "src/main/resources/enemies/tower.png",
         listOf(
-			AnimationData("idle",2,false,2),
-            AnimationData("shootUp",2,false,2),
-            AnimationData("shootDown",2,false,2),
-            AnimationData("shootLeft",2,false,2),
-            AnimationData("shootRight",2,false,2)
+			AnimationData("idle",4,true,2),
+            AnimationData("shoot",4,false,1),
         )
     );
 
@@ -103,6 +102,7 @@ class TankEnemy(room:Room) : Enemy(room){
     init{
         speedMultiplier = 0.2;
         health = 5;
+        anim.fps = 6;
     }
     override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
@@ -141,39 +141,40 @@ class SpasticEnemy(room:Room) : Enemy(room,Double2D(64.0,64.0)){
             )
     );
     init{
-        speedMultiplier = 1.0;
+        speedMultiplier = 0.9;
         health = 2;
     }
     override fun update(elapsed_ms:Long){
         val elapsed_s = (1000f/elapsed_ms.toFloat());
 
-        if(targetPos.distance(position) < 2.0){
-            targetPos = Player.player!!.position;
+        if(targetPos.distance(position) < 5.0){
+            targetPos = Player.player!!.center;
+            val pos = targetPos-position;
+            if(pos.x.absoluteValue > pos.y.absoluteValue){
+                targetPos.y = position.y;
+            }
+            else{
+                targetPos.x = position.x;
+            }
         }
-        var delta = (targetPos - position).normalized();
-
+        val delta = (targetPos - position).normalized();
         if(delta.x.absoluteValue > delta.y.absoluteValue){
-            delta.y = 0.0;
             if(delta.x > 0){
                 anim.Animate("right");
-                delta.x = 1.0;
             }
             else {
                 anim.Animate("left");
-                delta.x = -1.0;
             }
         }
         else{
-            delta.x = 0.0;
             if(delta.y < 0){
                 anim.Animate("up");
-                delta.y = -1.0;
             }
             else {
                 anim.Animate("down");
-                delta.y = 1.0;
             }
         }
+
 
         position += delta*speed*elapsed_s;
         collider.position = position;
