@@ -10,6 +10,7 @@ import game.map.Room;
 import game.Gl;
 import game.items.HeartPickup;
 import kotlin.math.absoluteValue
+import javafx.scene.paint.Color
 
 
 abstract class Enemy(room:Room,size:Double2D = Double2D(80.0,100.0)) : Actor(Double2D(),size,100){
@@ -85,6 +86,18 @@ class TowerEnemy(room:Room) : Enemy(room){
 
     init{
         fireRate = 0.5;
+        collider.static = true;
+    }
+
+    override fun shoot(vector:Double2D):Boolean{
+        if(Gl.elapsedTime-lastShot > 1000/fireRate){
+            lastShot = Gl.elapsedTime;
+            val p = Projectile(this,1, center, 15.0, vector,bulletSpeed);
+            p.fillColor = Color.PURPLE;
+            anim.Animate("shoot");
+            return true;
+        }
+        return false;
     }
 
 }

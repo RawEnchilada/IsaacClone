@@ -84,6 +84,7 @@ open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
 
     init{
         active = false;
+        drawing = false;
     }
 
     fun Finalize(floor:Floor){
@@ -154,6 +155,9 @@ open class Room(val index:Int,v:Int2D) : Drawable(roomSize*v,10){
             };
         }
         if(enemies.size == 0)return;
+        for(e in enemies){
+            e.drawing = true;
+        }
         thread {
             Thread.sleep(500);
             for(e in enemies){

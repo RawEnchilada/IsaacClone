@@ -51,7 +51,7 @@ object Gl{
                 KeyCode.F4 -> Player.player?.godMode = Player.player?.let { !it.godMode } ?: false;
                 KeyCode.F5 -> HeartPickup(InputListener.mousePosition+Drawable.cameraPosition);
                 KeyCode.F6 -> ItemPickup(InputListener.mousePosition+Drawable.cameraPosition,Item.getRandomItem());
-                KeyCode.ESCAPE -> Restart();
+                KeyCode.ESCAPE -> {Gl.disposeAll();Restart();}
                 else -> {}
             };
         });

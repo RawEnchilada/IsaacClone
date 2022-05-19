@@ -20,7 +20,7 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
             gc.clearRect(0.0,0.0,Gl.wSize.x,Gl.wSize.y);
             gc.drawImage(roomBackground, 0.0, 0.0, Gl.wSize.x, Gl.wSize.y);
             for(d in drawables){
-                if(d.active)d.draw(gc);
+                if(d.drawing)d.draw(gc);
             }    
             if(Gl.show_colliders){
                 for(c in Collider.colliders){
@@ -56,6 +56,7 @@ abstract class Drawable(pos:Double2D,size:Double2D,zindex:Int) : Component(pos){
 
     var zIndex = zindex;
     var size = size;
+    var drawing = true;
 
     abstract fun draw(gc:GraphicsContext);
 

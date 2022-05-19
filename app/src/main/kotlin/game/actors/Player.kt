@@ -27,10 +27,10 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
                     AnimationData("up",1,true,3),
                     AnimationData("left",1,true,3),
                     AnimationData("right",1,true,3),
-                    AnimationData("shootDown",2,false,2),
-                    AnimationData("shootUp",2,false,2),
-                    AnimationData("shootLeft",2,false,2),
-                    AnimationData("shootRight",2,false,2),
+                    AnimationData("shootDown",1,false,2),
+                    AnimationData("shootUp",1,false,2),
+                    AnimationData("shootLeft",1,false,2),
+                    AnimationData("shootRight",1,false,2),
             )
     );
     private val body:AnimationPlayer = AnimationPlayer(
@@ -194,6 +194,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
     override fun dispose(){
         if(!isDisposed) {
             active = false;
+            drawing = false;
             collider.active = false;
             super.dispose();
         }
