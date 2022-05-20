@@ -12,7 +12,7 @@ import game.ui.Restart
 import kotlin.math.absoluteValue
 
 
-class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0)) : Actor(pos,size,100){
+class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(50.0,100.0)) : Actor(pos,size,100){
     companion object{
         var player: Player? = null;
     }
@@ -27,10 +27,10 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
                     AnimationData("up",1,true,3),
                     AnimationData("left",1,true,3),
                     AnimationData("right",1,true,3),
-                    AnimationData("shootDown",1,false,2),
-                    AnimationData("shootUp",1,false,2),
-                    AnimationData("shootLeft",1,false,2),
-                    AnimationData("shootRight",1,false,2),
+                    AnimationData("shootDown",2,false,2),
+                    AnimationData("shootUp",2,false,2),
+                    AnimationData("shootLeft",2,false,2),
+                    AnimationData("shootRight",2,false,2),
             )
     );
     private val body:AnimationPlayer = AnimationPlayer(
@@ -148,7 +148,7 @@ class Player(starting: Room, pos:Double2D, size:Double2D = Double2D(80.0,100.0))
 
     override fun draw(gc:GraphicsContext){
         val pos = getDrawPosition(position);
-        gc.drawImage(head.sprite, pos.x, pos.y, size.x, size.y/2);
+        gc.drawImage(head.sprite, pos.x, pos.y+7.5, size.x, size.y/2);
         gc.drawImage(body.sprite, pos.x, pos.y+size.y/2, size.x, size.y/2);
     }
 
